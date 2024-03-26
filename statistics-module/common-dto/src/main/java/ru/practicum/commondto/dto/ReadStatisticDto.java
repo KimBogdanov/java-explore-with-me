@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 @Builder
-public class ReadStatisticsDto {
+public class ReadStatisticDto {
     private final String app;
     private final String uri;
     private final Integer hits;

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateStatisticsDto {
+public class CreateStatisticDto {
     @NotBlank
     @Size(max = 255)
     private String app;
