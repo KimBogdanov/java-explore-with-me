@@ -1,4 +1,4 @@
-package ru.practicum.statisticsclient.model;
+package ru.practicum.statisticservice.model;
 
 import lombok.*;
 
@@ -18,15 +18,15 @@ public class Statistic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "app")
+    @Column(name = "application", nullable = false, length = 255)
     private String app;
 
-    @Column(name = "ip")
+    @Column(name = "uri", nullable = false, length = 512)
+    private String uri;
+
+    @Column(name = "ip", nullable = false, length = 255)
     private String ip;
 
-    @Column(name = "create")
-    private LocalDateTime create;
-
-    @Column(name = "uri")
-    private String uri;
+    @Column(name = "created", nullable = false)
+    private LocalDateTime timestamp;
 }

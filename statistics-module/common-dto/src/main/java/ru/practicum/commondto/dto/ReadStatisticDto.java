@@ -1,8 +1,6 @@
 package ru.practicum.commondto.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
 @RequiredArgsConstructor
@@ -10,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 public class ReadStatisticDto {
     private final String app;
     private final String uri;
-    private final Integer hits;
+    private final Long hits;
 }
