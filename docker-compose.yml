@@ -1,15 +1,47 @@
 version: '3.1'
 services:
   stats-server:
+    build: statistics-module/statistics-service
+    image: statistic_service
+    container_name: statistics_container
+    ports:
+      - "8585:8585"
+    depends_on:
+      - stats-db
+    environment:
+      - POSTGRES_DB=stat
+      - POSTGRES_USER=stat
+      - POSTGRES_PASSWORD=stat
+      - DB_HOST=stats-db
+      - DB_PORT=5541
+
+  stats-client:
+    build: statistics-module/statistics-client
+    image: client
+    container_name: client_container
     ports:
       - "9090:9090"
+    depends_on:
+      - stats-server
 
   stats-db:
     image: postgres:14-alpine
-
-  ewm-service:
     ports:
-      - "8080:8080"
+    - "6541:5541"
+    environment:
+      - POSTGRES_DB=stat
+      - POSTGRES_USER=stat
+      - POSTGRES_PASSWORD=stat
 
-  ewm-db:
-    image: postgres:14-alpine
+#  ewm-service:
+#    ports:
+#      - "8080:8080"
+
+#  ewm-db:
+#    image: postgres:14-alpine
+#    ports:
+#      - "6542:5542"
+#    environment:
+#      - POSTGRES_DB=maindb
+#      - POSTGRES_USER=maindb
+#      - POSTGRES_PASSWORD=maindb
