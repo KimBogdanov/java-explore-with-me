@@ -5,7 +5,7 @@ services:
     image: statistic_service
     container_name: statistics_container
     ports:
-      - "8585:8585"
+      - "9090:9090"
     depends_on:
       - stats-db
     environment:
@@ -20,11 +20,11 @@ services:
     image: client
     container_name: client_container
     ports:
-      - "9090:9090"
+      - "8585:8585"
     depends_on:
       - stats-server
     environment:
-      - SERVER_URL=http://stats-server:8585
+      - SERVER_URL=http://stats-server:9090
 
   stats-db:
     image: postgres:14-alpine
