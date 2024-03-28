@@ -15,7 +15,7 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
             "group by s.ip, s.uri " +
             "order by count(distinct s.ip) desc")
     List<ReadStatisticDto> findAllByTimestampBetweenStartAndEndUniqueIp(LocalDateTime start,
-                                                                            LocalDateTime end);
+                                                                        LocalDateTime end);
 
     @Query(value = "select new ru.practicum.commondto.dto.ReadStatisticDto(s.ip, s.uri, count(s.ip)) " +
             "from Statistic as s " +
@@ -23,7 +23,7 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
             "group by s.ip, s.uri " +
             "order by count(s.ip) desc ")
     List<ReadStatisticDto> findAllByTimestampBetweenStartAndEnd(LocalDateTime start,
-                                                                                LocalDateTime end);
+                                                                LocalDateTime end);
 
     @Query(value = "select new ru.practicum.commondto.dto.ReadStatisticDto(s.ip, s.uri, count(distinct s.ip)) " +
             "from Statistic as s " +
@@ -40,6 +40,6 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
             "group by s.ip, s.uri " +
             "order by count(s.ip) desc ")
     List<ReadStatisticDto> findAllByTimestampBetweenStartAndEndWithUris(LocalDateTime start,
-                                                                                   LocalDateTime end,
-                                                                                   List<String> uris);
+                                                                        LocalDateTime end,
+                                                                        List<String> uris);
 }

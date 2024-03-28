@@ -6,6 +6,5 @@ import ru.practicum.statisticservice.model.Statistic;
 
 @Mapper(componentModel = "spring")
 public interface StatisticMapper {
-
     Statistic toModel(CreateStatisticDto dto);
 }
