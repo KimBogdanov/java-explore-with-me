@@ -7,6 +7,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StatisticService {
-    void saveHit(CreateStatisticDto statisticDto);
-    List<ReadStatisticDto> getStatistics(String start, String end, List<String> uris, Boolean unique);
+    CreateStatisticDto saveHit(CreateStatisticDto statisticDto);
+    List<ReadStatisticDto> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 }

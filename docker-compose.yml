@@ -9,11 +9,11 @@ services:
     depends_on:
       - stats-db
     environment:
-      - POSTGRES_DB=stat
+      - DB_NAME=stat
       - POSTGRES_USER=stat
       - POSTGRES_PASSWORD=stat
       - DB_HOST=stats-db
-      - DB_PORT=5541
+      - DB_PORT=5432
 
   stats-client:
     build: statistics-module/statistics-client
@@ -23,11 +23,13 @@ services:
       - "9090:9090"
     depends_on:
       - stats-server
+    environment:
+      - SERVER_URL=http://stats-server:8585
 
   stats-db:
     image: postgres:14-alpine
     ports:
-    - "6541:5541"
+    - "6541:5432"
     environment:
       - POSTGRES_DB=stat
       - POSTGRES_USER=stat
