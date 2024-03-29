@@ -44,10 +44,6 @@ public class StatisticClient extends BaseClient {
                 "unique", unique);
         return get("/stats?start={start}&end={end}&unique={unique}&uris={uris}", parameters);
     }
-//
-//    private String encode(String value) {
-//        return URLEncoder.encode(value, StandardCharsets.UTF_8);
-//    }
 }
 
 

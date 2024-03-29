@@ -18,27 +18,24 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class StatisticController {
+    public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
     private final StatisticService statisticService;
-//    public static final DateTimeFormatter PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
     public CreateStatisticDto saveHit(@RequestBody @Valid CreateStatisticDto hitDto) {
-        log.info("Hit from ip {} created", hitDto.getIp());
+        log.info("Hit from ip {} created, time {}", hitDto.getIp(), hitDto.getTimestamp());
         return statisticService.saveHit(hitDto);
     }
 
     @GetMapping("/stats")
     public List<ReadStatisticDto> getStatistics(
-            @RequestParam(name = "start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-            @RequestParam(name = "end") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+            @RequestParam(name = "start") @DateTimeFormat(pattern = PATTERN) LocalDateTime start,
+            @RequestParam(name = "end") @DateTimeFormat(pattern = PATTERN) LocalDateTime end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Get statistics from {} to {} for uri {} unique {}", start, end, uris, unique);
-//        LocalDateTime decodeStart = decode(start);
-//        LocalDateTime decodeEnd = decode(end);
         checkDateAndThrowException(start, end);
-//        log.info("Get statistics from {} to {} for uri {} unique {}", start, decodeEnd, uris, unique);
         return statisticService.getStatistics(start, end, uris, unique);
     }
 
@@ -47,8 +44,4 @@ public class StatisticController {
             throw new IllegalArgumentException("Start after end");
         }
     }
-//
-//    private LocalDateTime decode(String dateTime) {
-//        return LocalDateTime.parse(URLDecoder.decode(dateTime, StandardCharsets.UTF_8), PATTERN);
-//    }
 }
