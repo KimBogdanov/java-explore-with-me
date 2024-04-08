@@ -16,7 +16,7 @@ import java.util.Map;
 public class StatisticClient extends BaseClient {
 
 
-    public StatisticClient(@Value("${explore-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatisticClient(@Value("http://stats-server:9090") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))

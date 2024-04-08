@@ -2,7 +2,9 @@ package ru.practicum.mainmodule.event.model;
 
 import lombok.*;
 import ru.practicum.mainmodule.admin.location.model.Location;
+import ru.practicum.mainmodule.admin.model.User;
 import ru.practicum.mainmodule.category.model.Category;
+import ru.practicum.mainmodule.event.model.enums.EventState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,8 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"id"})
-@ToString
+@EqualsAndHashCode(exclude = {"id"}) //не забыть дописать
+@ToString //(exclude = {})
 @Entity
 @Table(name = "events")
 public class Event {
@@ -25,19 +27,29 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+    @JoinColumn(name = "created_on", nullable = false)
+    private LocalDateTime createdOn;
     @Column(name = "description", length = 7000, nullable = false)
     private String description;
-    @Column(name = "eventDate", nullable = false)
+    @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
+    @ManyToOne
+    @JoinColumn(name = "initiator_id", nullable = false)
+    private User initiator;
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;
-    @Column(name = "is_paid")
+    @Column(name = "is_paid", nullable = false)
     private Boolean paid;
-    @Column(name = "participant_limit")
+    @Column(name = "participant_limit", nullable = false)
     private Integer participantLimit;
-    @Column(name = "is_request_moderation")
+    @Column(name = "published_on")
+    private LocalDateTime publishedOn;
+    @Column(name = "is_request_moderation", nullable = false)
     private Boolean requestModeration;
+    @Enumerated
+    @JoinColumn(name = "state", nullable = false)
+    private EventState state;
     @Column(name = "title", nullable = false, length = 120)
     private String title;
 }

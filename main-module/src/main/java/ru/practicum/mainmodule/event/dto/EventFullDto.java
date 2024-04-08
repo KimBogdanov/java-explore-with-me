@@ -6,34 +6,34 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import ru.practicum.mainmodule.admin.location.dto.LocationDto;
+import ru.practicum.mainmodule.category.dto.CategoryDto;
+import ru.practicum.mainmodule.event.model.enums.EventState;
+import ru.practicum.mainmodule.user.dto.UserShortDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewEventDto {
-    @NotBlank
-    @Size(min = 20, max = 2000)
+public class EventFullDto {
+    private Long id;
     private String annotation;
-    @NotNull
-    private Long category;
-    @NotBlank
-    @Size(min = 20, max = 7000)
+    private CategoryDto category;
+    private Integer confirmedRequests;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    private LocalDateTime createdOn;
     private String description;
-    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
     private LocalDateTime eventDate;
-    @NotNull
+    private UserShortDto initiator;
     private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", shape = JsonFormat.Shape.STRING)
+    private LocalDateTime publishedOn;
     private Boolean requestModeration;
-    @NotBlank
-    @Size(min = 3, max = 120)
+    private EventState state;
     private String title;
+    private Long views;
 }

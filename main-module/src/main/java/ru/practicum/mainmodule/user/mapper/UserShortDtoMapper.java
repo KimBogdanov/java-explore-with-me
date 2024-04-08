@@ -1,7 +1,7 @@
-package ru.practicum.mainmodule.admin.mapper;
+package ru.practicum.mainmodule.user.mapper;
 
 import org.mapstruct.Mapper;
-import ru.practicum.mainmodule.admin.dto.UserShortDto;
+import ru.practicum.mainmodule.user.dto.UserShortDto;
 import ru.practicum.mainmodule.admin.model.User;
 
 @Mapper(componentModel = "Spring")

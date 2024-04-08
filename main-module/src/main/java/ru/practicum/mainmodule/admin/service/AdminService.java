@@ -1,7 +1,7 @@
 package ru.practicum.mainmodule.admin.service;
 
-import ru.practicum.mainmodule.admin.dto.UserDto;
-import ru.practicum.mainmodule.admin.dto.UserShortDto;
+import ru.practicum.mainmodule.user.dto.UserDto;
+import ru.practicum.mainmodule.user.dto.UserShortDto;
 
 import java.util.List;
 

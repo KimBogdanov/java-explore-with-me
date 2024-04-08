@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import javax.validation.ConstraintViolationException;
 
 @Slf4j
 @RestControllerAdvice
@@ -17,7 +16,9 @@ public class ExceptionHandlerApi {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.name(), "The required object was not found."));
+                .body(new ErrorResponse(ex.getMessage(),
+                        HttpStatus.NOT_FOUND.name(),
+                        "The required object was not found."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -25,7 +26,9 @@ public class ExceptionHandlerApi {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.name(), "Incorrectly made request."));
+                .body(new ErrorResponse(ex.getMessage(),
+                        HttpStatus.BAD_REQUEST.name(),
+                        "Incorrectly made request."));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -33,7 +36,9 @@ public class ExceptionHandlerApi {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(ex.getMessage(), HttpStatus.CONFLICT.name(), "Integrity constraint has been violated."));
+                .body(new ErrorResponse(ex.getMessage(),
+                        HttpStatus.CONFLICT.name(),
+                        "Integrity constraint has been violated."));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -41,6 +46,18 @@ public class ExceptionHandlerApi {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.name(), "Incorrectly made request."));
+                .body(new ErrorResponse(ex.getMessage(),
+                        HttpStatus.BAD_REQUEST.name(),
+                        "Incorrectly made request."));
+    }
+
+    @ExceptionHandler(NotCorrectTimeException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(final NotCorrectTimeException ex) {
+        log.error("getMessage: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(ex.getMessage(),
+                        HttpStatus.FORBIDDEN.name(),
+                        "For the requested operation the conditions are not met."));
     }
 }
