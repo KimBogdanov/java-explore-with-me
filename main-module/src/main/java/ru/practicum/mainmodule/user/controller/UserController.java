@@ -10,6 +10,7 @@ import ru.practicum.mainmodule.request.dto.ParticipationRequestDto;
 import ru.practicum.mainmodule.request.service.RequestService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,10 +28,23 @@ public class UserController {
         return eventService.saveEvent(userId, newEventDto);
     }
 
+    @GetMapping("/{userId}/requests")
+    public List<ParticipationRequestDto> getAllRequestsForRequester(@PathVariable Long userId) {
+        log.info("getRequestForRequester for user with id: {}", userId);
+        return requestService.getAllRequestsForRequester(userId);
+    }
+
     @PostMapping("/{userId}/requests")
     public ParticipationRequestDto saveRequest(@RequestParam Long eventId,
                                                @PathVariable Long userId) {
         log.info("saveRequest event id: {}, user id: {}", eventId, userId);
         return requestService.saveRequest(userId, eventId);
+    }
+
+    @PatchMapping("/{userId}/requests/{requestsId}/cancel")
+    public ParticipationRequestDto cancelRequest(@PathVariable Long userId,
+                                                 @PathVariable Long requestsId) {
+        log.info("cancelRequest user with id: {}, request id: {}", userId, requestsId);
+        return requestService.cancelRequest(userId, requestsId);
     }
 }

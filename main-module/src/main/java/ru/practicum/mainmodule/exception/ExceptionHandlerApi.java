@@ -60,4 +60,14 @@ public class ExceptionHandlerApi {
                         HttpStatus.FORBIDDEN.name(),
                         "For the requested operation the conditions are not met."));
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflictException(final ConflictException ex) {
+        log.error("getMessage: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(ex.getMessage(),
+                        HttpStatus.CONFLICT.name(),
+                        "Integrity constraint has been violated."));
+    }
 }

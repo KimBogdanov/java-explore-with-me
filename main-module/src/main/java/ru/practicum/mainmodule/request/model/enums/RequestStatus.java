@@ -1,4 +1,4 @@
-package ru.practicum.mainmodule.request.enums;
+package ru.practicum.mainmodule.request.model.enums;
 
 public enum RequestStatus {
     PENDING, CONFIRMED, REJECTED

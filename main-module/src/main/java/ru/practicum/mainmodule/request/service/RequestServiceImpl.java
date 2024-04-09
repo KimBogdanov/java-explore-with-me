@@ -7,9 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.model.enums.EventState;
 import ru.practicum.mainmodule.event.repository.EventRepository;
+import ru.practicum.mainmodule.exception.ConflictException;
 import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.request.dto.ParticipationRequestDto;
-import ru.practicum.mainmodule.request.enums.RequestStatus;
+import ru.practicum.mainmodule.request.model.enums.RequestStatus;
 import ru.practicum.mainmodule.request.mapper.ParticipationRequestMapper;
 import ru.practicum.mainmodule.request.model.Request;
 import ru.practicum.mainmodule.request.repository.RequestRepository;
@@ -17,7 +18,9 @@ import ru.practicum.mainmodule.user.model.User;
 import ru.practicum.mainmodule.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,42 @@ public class RequestServiceImpl implements RequestService {
                 .map(requestRepository::save)
                 .map(participationRequestMapper::toDto)
                 .get();
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getAllRequestsForRequester(Long userId) {
+        getUserOrThrowNotFoundException(userId);
+        return requestRepository.findAllByRequesterId(userId).stream()
+                .map(participationRequestMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ParticipationRequestDto cancelRequest(Long userId, Long requestsId) {
+        getUserOrThrowNotFoundException(userId);
+        Request request = getRequestOrThrowNotFoundException(requestsId);
+        checkIfRequesterIsOwnerAndThrowException(userId, request.getRequester().getId(), requestsId);
+
+        request.setStatus(RequestStatus.REJECTED);
+        return Optional.of(request)
+                .map(requestRepository::save)
+                .map(participationRequestMapper::toDto)
+                .get();
+    }
+
+    private void checkIfRequesterIsOwnerAndThrowException(Long userId, Long requesterId, Long requestsId) {
+        if (!requesterId.equals(userId)) {
+            throw new ConflictException(
+                    String.format("User with id=%d not owner of request id=%d", userId, requestsId)
+            );
+        }
+    }
+
+    private Request getRequestOrThrowNotFoundException(Long requestsId) {
+        return requestRepository.findById(requestsId)
+                .orElseThrow(
+                        () -> new NotFoundException(String.format("Request with id=%d was not found", requestsId))
+                );
     }
 
     private void checkIfParticipantLimitFullAndThrowException(Long eventId, Event event) {
