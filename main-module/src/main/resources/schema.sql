@@ -40,5 +40,6 @@ CREATE TABLE IF NOT EXISTS requests (
     created                 TIMESTAMP WITHOUT TIME ZONE     NOT NULL,
     event_id                BIGINT                          NOT NULL REFERENCES events(id),
     requester_id            BIGINT                          NOT NULL REFERENCES users(id),
-    status                  VARCHAR(20)                     NOT NULL
+    status                  VARCHAR(20)                     NOT NULL,
+    CONSTRAINT requester_unique UNIQUE (event_id, requester_id)
     );

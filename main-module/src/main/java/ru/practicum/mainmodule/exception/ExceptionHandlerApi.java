@@ -22,7 +22,7 @@ public class ExceptionHandlerApi {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(final MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -32,7 +32,7 @@ public class ExceptionHandlerApi {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(final DataIntegrityViolationException ex) {
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(final DataIntegrityViolationException ex) {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -42,7 +42,7 @@ public class ExceptionHandlerApi {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(final IllegalArgumentException ex) {
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(final IllegalArgumentException ex) {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -52,7 +52,7 @@ public class ExceptionHandlerApi {
     }
 
     @ExceptionHandler(ConditionsNotMetException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(final ConditionsNotMetException ex) {
+    public ResponseEntity<ErrorResponse> handleConditionsNotMetException(final ConditionsNotMetException ex) {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)

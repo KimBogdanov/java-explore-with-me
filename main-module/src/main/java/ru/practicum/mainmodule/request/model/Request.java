@@ -1,4 +1,4 @@
-package ru.practicum.mainmodule.request;
+package ru.practicum.mainmodule.request.model;
 
 import lombok.*;
 import ru.practicum.mainmodule.event.model.Event;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(exclude = "id")
 @Entity
 @Table(name = "requests")
-public class Model {
+public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
