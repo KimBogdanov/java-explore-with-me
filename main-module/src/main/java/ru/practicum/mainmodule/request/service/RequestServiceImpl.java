@@ -41,7 +41,7 @@ public class RequestServiceImpl implements RequestService {
         checkIfEventIsPublishedAndThrowException(eventId, event.getState());
         checkIfParticipantLimitFullAndThrowException(eventId, event);
 
-        return Optional.of(getRequest(user, event))
+        return Optional.of(createRequest(user, event))
                 .map(requestRepository::save)
                 .map(participationRequestMapper::toDto)
                 .get();
@@ -66,6 +66,21 @@ public class RequestServiceImpl implements RequestService {
                 .map(requestRepository::save)
                 .map(participationRequestMapper::toDto)
                 .get();
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getAllRequestsByEventId(Long userId, Long eventId) {
+        getUserOrThrowNotFoundException(userId);
+        Event event = getEventOrThrowNotFoundException(eventId);
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException(
+                    String.format("User with id=%d not owner of event id=%d", userId, eventId)
+            );
+        }
+
+        return requestRepository.findAllByEventId(eventId).stream()
+                .map(participationRequestMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     private void checkIfRequesterIsOwnerAndThrowException(Long userId, Long requesterId, Long requestsId) {
@@ -108,7 +123,7 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
-    private Request getRequest(User user, Event event) {
+    private Request createRequest(User user, Event event) {
         return Request.builder()
                 .created(LocalDateTime.now())
                 .event(event)

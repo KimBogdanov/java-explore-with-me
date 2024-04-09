@@ -47,4 +47,11 @@ public class UserController {
         log.info("cancelRequest user with id: {}, request id: {}", userId, requestsId);
         return requestService.cancelRequest(userId, requestsId);
     }
+
+    @GetMapping("/{userId}/events/{eventId}/requests")
+    public List<ParticipationRequestDto> getAllRequestsForEventOwner(@PathVariable Long userId,
+                                                                     @PathVariable Long eventId) {
+        log.info("getAllRequestsForEventOwner for user with id: {} and event id: {}", userId, eventId);
+        return requestService.getAllRequestsByEventId(userId, eventId);
+    }
 }
