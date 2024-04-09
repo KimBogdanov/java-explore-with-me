@@ -51,8 +51,8 @@ public class ExceptionHandlerApi {
                         "Incorrectly made request."));
     }
 
-    @ExceptionHandler(NotCorrectTimeException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(final NotCorrectTimeException ex) {
+    @ExceptionHandler(ConditionsNotMetException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(final ConditionsNotMetException ex) {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)

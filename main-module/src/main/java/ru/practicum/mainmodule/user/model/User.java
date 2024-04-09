@@ -1,4 +1,4 @@
-package ru.practicum.mainmodule.admin.model;
+package ru.practicum.mainmodule.user.model;
 
 import lombok.*;
 

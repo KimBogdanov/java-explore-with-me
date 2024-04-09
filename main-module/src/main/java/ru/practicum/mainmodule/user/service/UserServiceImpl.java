@@ -1,4 +1,4 @@
-package ru.practicum.mainmodule.admin.service;
+package ru.practicum.mainmodule.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -8,7 +8,7 @@ import ru.practicum.mainmodule.user.dto.UserDto;
 import ru.practicum.mainmodule.user.dto.UserShortDto;
 import ru.practicum.mainmodule.user.mapper.UserDtoMapper;
 import ru.practicum.mainmodule.user.mapper.UserShortDtoMapper;
-import ru.practicum.mainmodule.admin.model.User;
+import ru.practicum.mainmodule.user.model.User;
 import ru.practicum.mainmodule.user.repository.UserRepository;
 import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.util.PageRequestFrom;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminServiceImpl implements AdminService {
+public class UserServiceImpl implements UserService {
     private final UserShortDtoMapper userShortDtoMapper;
     private final UserDtoMapper userDtoMapper;
     private final UserRepository userRepository;
