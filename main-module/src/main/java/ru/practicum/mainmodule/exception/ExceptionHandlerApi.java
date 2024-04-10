@@ -21,8 +21,8 @@ public class ExceptionHandlerApi {
                         "The required object was not found."));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final MethodArgumentNotValidException ex) {
+    @ExceptionHandler({MethodArgumentNotValidException.class, IllegalArgumentException.class, IllegalStatusException.class})
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(final RuntimeException ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
@@ -30,9 +30,18 @@ public class ExceptionHandlerApi {
                         HttpStatus.BAD_REQUEST.name(),
                         "Incorrectly made request."));
     }
+//    @ExceptionHandler(IllegalArgumentException.class)
+//    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(final IllegalArgumentException ex) {
+//        log.error("getMessage: {}", ex.getMessage());
+//        return ResponseEntity
+//                .status(HttpStatus.BAD_REQUEST)
+//                .body(new ErrorResponse(ex.getMessage(),
+//                        HttpStatus.BAD_REQUEST.name(),
+//                        "Incorrectly made request."));
+//    }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(final DataIntegrityViolationException ex) {
+    @ExceptionHandler({DataIntegrityViolationException.class, ConflictException.class})
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(final RuntimeException ex) {
         log.error("getMessage: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -40,16 +49,17 @@ public class ExceptionHandlerApi {
                         HttpStatus.CONFLICT.name(),
                         "Integrity constraint has been violated."));
     }
+//    @ExceptionHandler(ConflictException.class)
+//    public ResponseEntity<ErrorResponse> handleConflictException(final ConflictException ex) {
+//        log.error("getMessage: {}", ex.getMessage());
+//        return ResponseEntity
+//                .status(HttpStatus.CONFLICT)
+//                .body(new ErrorResponse(ex.getMessage(),
+//                        HttpStatus.CONFLICT.name(),
+//                        "Integrity constraint has been violated."));
+//    }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(final IllegalArgumentException ex) {
-        log.error("getMessage: {}", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage(),
-                        HttpStatus.BAD_REQUEST.name(),
-                        "Incorrectly made request."));
-    }
+
 
     @ExceptionHandler(ConditionsNotMetException.class)
     public ResponseEntity<ErrorResponse> handleConditionsNotMetException(final ConditionsNotMetException ex) {
@@ -61,13 +71,5 @@ public class ExceptionHandlerApi {
                         "For the requested operation the conditions are not met."));
     }
 
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflictException(final ConflictException ex) {
-        log.error("getMessage: {}", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(ex.getMessage(),
-                        HttpStatus.CONFLICT.name(),
-                        "Integrity constraint has been violated."));
-    }
+
 }
