@@ -78,9 +78,9 @@ public class AdminController {
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN) LocalDateTime rangeStart,
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN) LocalDateTime rangeEnd,
             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(required = false, defaultValue = "10") @Positive Integer size){
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         log.info("getEventsForAdmin for users ids: {} states: {} categories ids: {}", users, states, categories);
-        return  eventService.getAllEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+        return eventService.getAllEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("events/{eventId}")

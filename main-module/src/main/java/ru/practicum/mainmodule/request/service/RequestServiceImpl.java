@@ -170,7 +170,6 @@ public class RequestServiceImpl implements RequestService {
                     String.format("User with id=%d not owner of event id=%d", userId, event.getId())
             );
         }
-
     }
 
     private void checkIfRequesterIsOwnerAndThrowException(Long userId, Long requesterId, Long requestsId) {

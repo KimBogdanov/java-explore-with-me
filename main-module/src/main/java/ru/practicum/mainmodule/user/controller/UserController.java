@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
+import ru.practicum.mainmodule.event.dto.EventShortDto;
 import ru.practicum.mainmodule.event.dto.NewEventDto;
 import ru.practicum.mainmodule.event.service.EventService;
 import ru.practicum.mainmodule.request.dto.EventRequestStatusUpdateRequestDto;
@@ -12,6 +13,8 @@ import ru.practicum.mainmodule.request.dto.ParticipationRequestDto;
 import ru.practicum.mainmodule.request.service.RequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -22,6 +25,22 @@ public class UserController {
 
     private final EventService eventService;
     private final RequestService requestService;
+
+    @GetMapping("/{userId}/events")
+    public List<EventShortDto> getAllEventsForOwner(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+        log.info("getAllEventsForOwner for user with id: {} from: {} size: {}", userId, from, size);
+        return eventService.getAllEventsForOwner(userId, from, size);
+    }
+
+    @GetMapping("/{userId}/events/{eventId}")
+    public EventFullDto getEventForOwner(@PathVariable Long userId,
+                                         @PathVariable Long eventId) {
+        log.info("getEventForOwner for user with id: {} event id: {}", userId, eventId);
+        return eventService.getEventForOwner(userId, eventId);
+    }
 
     @PostMapping("/{userId}/events")
     public EventFullDto saveEvent(@RequestBody @Valid NewEventDto newEventDto,

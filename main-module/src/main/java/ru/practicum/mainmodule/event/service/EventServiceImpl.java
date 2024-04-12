@@ -11,9 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.commondto.dto.ReadStatisticDto;
 import ru.practicum.mainmodule.admin.location.model.Location;
 import ru.practicum.mainmodule.admin.location.service.LocationService;
+import ru.practicum.mainmodule.event.dto.EventShortDto;
 import ru.practicum.mainmodule.event.dto.UpdateEventAdminRequestDto;
+import ru.practicum.mainmodule.event.mapper.EventShortMapper;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.model.enums.EventState;
+import ru.practicum.mainmodule.exception.ConflictException;
 import ru.practicum.mainmodule.request.model.Request;
 import ru.practicum.mainmodule.request.model.enums.RequestStatus;
 import ru.practicum.mainmodule.request.repository.RequestRepository;
@@ -51,6 +54,7 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
     private final NewEventDtoMapper newEventDtoMapper;
     private final EventFullDtoMapper eventFullDtoMapper;
+    private final EventShortMapper eventShortMapper;
     private final StatisticClient statisticClient;
     private final ObjectMapper objectMapper;
 
@@ -226,51 +230,75 @@ public class EventServiceImpl implements EventService {
 
             }
         }
-        //получаем список всех event id
-        log.info("получаем список всех event id");
-        List<Long> eventIds = events.stream()
-                .map(Event::getId)
+
+        List<Long> eventsIds = getEventsId(events);
+        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
+
+        return events.stream()
+                .map(event -> eventFullDtoMapper.toDto(
+                        event,
+                        countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
+                        statisticMap.get(event.getId())))
                 .collect(Collectors.toList());
+    }
 
-        //получаем все реквесты для нужных эвентов и считаем их кол-во группируя по event id
-        log.info("получаем все реквесты для нужных эвентов и считаем их кол-во группируя по event id");
-        List<Request> allByEventIdInAndStatus = requestRepository.findAllByEventIdInAndStatus(eventIds,
+    @Override
+    public List<EventShortDto> getAllEventsForOwner(Long userId, Integer from, Integer size) {
+        getUserOrThrowNotFoundException(userId);
+        Page<Event> events = eventRepository.findAllByInitiatorId(userId, new PageRequestFrom(from, size, null));
+
+        List<Long> eventsIds = getEventsId(events);
+        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now().plusYears(100), eventsIds);
+
+        return events.stream()
+                .map(event -> eventShortMapper.toDto(event,
+                        countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
+                        statisticMap.get(event.getId())))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public EventFullDto getEventForOwner(Long userId, Long eventId) {
+        getUserOrThrowNotFoundException(userId);
+        Event event = getEventOrThrowNotFoundException(eventId);
+        checkIfUserIsEventOwnerAndThrowException(event, userId);
+
+        Integer countRequest = requestRepository.countAllRequestByEventIdAndStatus(eventId,
                 RequestStatus.CONFIRMED);
+        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now().plusYears(100), List.of(eventId));
 
+        return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
+    }
 
-        Map<Long, Integer> countRequestsByEventId = allByEventIdInAndStatus.stream()
-                .collect(Collectors.groupingBy(
-                        request -> request.getEvent().getId(),
-                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue))
-                );
-        log.info("получаем все uris для запроса статистики");
-        //получаем все uris для запроса статистики
-        List<String> uris = eventIds.stream()
+    private Map<Long, Long> getStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
+        List<String> uris = eventsIds.stream()
                 .map(id -> "/events/" + id)
                 .collect(Collectors.toList());
-        //получаем статистику
-        log.info("получаем статистику");
+
         ResponseEntity<Object> stats = statisticClient.getStats(rangeStart, rangeEnd, uris, false);
         List<ReadStatisticDto> statisticDtos;
         if (stats.getStatusCode().is2xxSuccessful()) {
             log.info("преобразуем к списку readStatisticDto");
-            //преобразуем к списку readStatisticDto
             statisticDtos = objectMapper.convertValue(stats.getBody(), new TypeReference<>() {
             });
         } else {
             throw new RuntimeException(Objects.requireNonNull(stats.getBody()).toString());
         }
-        Map<Long, Long> statisticMap = statisticDtos.stream()
+
+        return statisticDtos.stream()
                 .collect(Collectors.toMap(
                         dto -> extractIdFromUri(dto.getUri()),
                         ReadStatisticDto::getHits)
                 );
-        log.info("Заканчиваем метод");
+    }
+
+    private static List<Long> getEventsId(Page<Event> events) {
         return events.stream()
-                .map(event -> eventFullDtoMapper.toDto(
-                        event,
-                        countRequestsByEventId.get(event.getId()),
-                        statisticMap.get(event.getId())))
+                .map(Event::getId)
                 .collect(Collectors.toList());
     }
 
@@ -302,5 +330,26 @@ public class EventServiceImpl implements EventService {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException(String.format("User with id=%d was not found", userId))
         );
+    }
+
+    private Map<Long, Integer> getCountByEventId(List<Long> eventIds) {
+
+        log.info("получаем все реквесты для нужных эвентов и считаем их кол-во группируя по event id");
+        List<Request> allByEventIdInAndStatus = requestRepository.findAllByEventIdInAndStatus(eventIds,
+                RequestStatus.CONFIRMED);
+
+        return allByEventIdInAndStatus.stream()
+                .collect(Collectors.groupingBy(
+                        request -> request.getEvent().getId(),
+                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue))
+                );
+    }
+
+    private void checkIfUserIsEventOwnerAndThrowException(Event event, Long userId) {
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ConflictException(
+                    String.format("User with id=%d not owner of event id=%d", userId, event.getId())
+            );
+        }
     }
 }
