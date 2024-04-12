@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.commondto.dto.ReadStatisticDto;
 import ru.practicum.mainmodule.admin.location.model.Location;
 import ru.practicum.mainmodule.admin.location.service.LocationService;
-import ru.practicum.mainmodule.event.dto.EventShortDto;
-import ru.practicum.mainmodule.event.dto.UpdateEventAdminRequestDto;
+import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.mapper.EventShortMapper;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.model.enums.EventState;
+import ru.practicum.mainmodule.event.model.enums.StateAction;
 import ru.practicum.mainmodule.exception.ConflictException;
 import ru.practicum.mainmodule.request.model.Request;
 import ru.practicum.mainmodule.request.model.enums.RequestStatus;
@@ -23,8 +23,6 @@ import ru.practicum.mainmodule.request.repository.RequestRepository;
 import ru.practicum.mainmodule.user.model.User;
 import ru.practicum.mainmodule.category.model.Category;
 import ru.practicum.mainmodule.category.repository.CategoryRepository;
-import ru.practicum.mainmodule.event.dto.EventFullDto;
-import ru.practicum.mainmodule.event.dto.NewEventDto;
 import ru.practicum.mainmodule.event.mapper.EventFullDtoMapper;
 import ru.practicum.mainmodule.event.mapper.NewEventDtoMapper;
 import ru.practicum.mainmodule.event.repository.EventRepository;
@@ -118,6 +116,7 @@ public class EventServiceImpl implements EventService {
                         break;
                     case REJECT_EVENT:
                         event.setState(EventState.CANCELED);
+                        break;
                 }
             } else {
                 throw new ConditionsNotMetException(
@@ -126,6 +125,56 @@ public class EventServiceImpl implements EventService {
             }
         }
         event.setPublishedOn(LocalDateTime.now());
+        return eventFullDtoMapper.toDto(event, 0, 0L);
+    }
+
+    @Override
+    public EventFullDto patchEventForUser(Long userId, Long eventId,
+                                          UpdateEventUserRequestDto eventUserRequestDto) {
+        getUserOrThrowNotFoundException(userId);
+        Event event = getEventOrThrowNotFoundException(eventId);
+
+        if (eventUserRequestDto.getAnnotation() != null) {
+            event.setAnnotation(eventUserRequestDto.getAnnotation());
+        }
+        if (eventUserRequestDto.getCategory() != null) {
+            event.setCategory(getCategoryOrThrowNotFoundException(eventUserRequestDto.getCategory()));
+        }
+        if (eventUserRequestDto.getDescription() != null) {
+            event.setDescription(eventUserRequestDto.getDescription());
+        }
+        if (eventUserRequestDto.getEventDate() != null) {
+            checkTimeThrowNotCorrectTimeException(eventUserRequestDto.getEventDate(), 2);
+            event.setEventDate(eventUserRequestDto.getEventDate());
+        }
+        if (eventUserRequestDto.getLocation() != null) {
+            event.setLocation(locationService.save(eventUserRequestDto.getLocation()));
+        }
+        if (eventUserRequestDto.getPaid() != null) {
+            event.setPaid(eventUserRequestDto.getPaid());
+        }
+        if (eventUserRequestDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(eventUserRequestDto.getParticipantLimit());
+        }
+        if (eventUserRequestDto.getRequestModeration() != null) {
+            event.setRequestModeration(eventUserRequestDto.getRequestModeration());
+        }
+        if (eventUserRequestDto.getTitle() != null) {
+            event.setTitle(eventUserRequestDto.getTitle());
+        }
+        if (eventUserRequestDto.getStateAction() != null) {
+            if (event.getState().equals(EventState.PENDING) || event.getState().equals(EventState.CANCELED)) {
+                if (eventUserRequestDto.getStateAction().equals(StateAction.CANCEL_REVIEW) &&
+                        event.getState().equals(EventState.PENDING)) {
+                    event.setState(EventState.CANCELED);
+                }
+            } else {
+                throw new ConditionsNotMetException(
+                        String.format("Cannot publish the event because it's not in the right state: %s",
+                                event.getState()));
+            }
+        }
+
         return eventFullDtoMapper.toDto(event, 0, 0L);
     }
 

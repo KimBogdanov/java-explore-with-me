@@ -1,9 +1,6 @@
 package ru.practicum.mainmodule.event.service;
 
-import ru.practicum.mainmodule.event.dto.EventFullDto;
-import ru.practicum.mainmodule.event.dto.EventShortDto;
-import ru.practicum.mainmodule.event.dto.NewEventDto;
-import ru.practicum.mainmodule.event.dto.UpdateEventAdminRequestDto;
+import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.model.enums.EventState;
 
 import java.time.LocalDateTime;
@@ -25,4 +22,6 @@ public interface EventService {
     List<EventShortDto> getAllEventsForOwner(Long userId, Integer from, Integer size);
 
     EventFullDto getEventForOwner(Long userId, Long eventId);
+
+    EventFullDto patchEventForUser(Long userId, Long eventId, UpdateEventUserRequestDto eventUserRequestDto);
 }

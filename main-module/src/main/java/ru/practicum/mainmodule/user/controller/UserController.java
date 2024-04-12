@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
 import ru.practicum.mainmodule.event.dto.EventShortDto;
 import ru.practicum.mainmodule.event.dto.NewEventDto;
+import ru.practicum.mainmodule.event.dto.UpdateEventUserRequestDto;
 import ru.practicum.mainmodule.event.service.EventService;
 import ru.practicum.mainmodule.request.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.mainmodule.request.dto.EventRequestStatusUpdateResultDto;
@@ -53,6 +54,15 @@ public class UserController {
     public List<ParticipationRequestDto> getAllRequestsForRequester(@PathVariable Long userId) {
         log.info("getRequestForRequester for user with id: {}", userId);
         return requestService.getAllRequestsForRequester(userId);
+    }
+
+    @PatchMapping("/{userId}/events/{eventId}")
+    public EventFullDto patchEventForUser(
+            @Valid @RequestBody UpdateEventUserRequestDto eventUserRequestDto,
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info("patchEventForUser user with id: {} and event id: {}", userId, eventId);
+        return eventService.patchEventForUser(userId, eventId, eventUserRequestDto);
     }
 
     @PostMapping("/{userId}/requests")
