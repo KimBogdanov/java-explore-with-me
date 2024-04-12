@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsers(List<Integer> ids, Integer from, Integer size) {
+    public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         Page<User> result;
         if (ids != null) {
             result = userRepository.findAllByIdIn(ids, new PageRequestFrom(from, size, null));

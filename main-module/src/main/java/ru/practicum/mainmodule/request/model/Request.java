@@ -29,7 +29,7 @@ public class Request {
     @ManyToOne
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @JoinColumn(name = "status", nullable = false)
     private RequestStatus status;
 }
