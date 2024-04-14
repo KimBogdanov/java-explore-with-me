@@ -18,7 +18,7 @@ public class LocationServiceImpl implements LocationService {
     @Override
     @Transactional
     public Location save(LocationDto locationDto) {
-        Location location = locationRepository.findLocationByLatAndLot(locationDto.getLat(), locationDto.getLot());
+        Location location = locationRepository.findLocationByLatAndLon(locationDto.getLat(), locationDto.getLon());
         if (location == null) {
             return locationRepository.save(locationDtoMapper.toModel(locationDto));
         }

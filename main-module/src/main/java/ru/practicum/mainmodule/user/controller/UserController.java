@@ -2,6 +2,7 @@ package ru.practicum.mainmodule.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
 import ru.practicum.mainmodule.event.dto.EventShortDto;
@@ -44,6 +45,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto saveEvent(@RequestBody @Valid NewEventDto newEventDto,
                                   @PathVariable Long userId) {
         log.info("saveEvent title: {}", newEventDto.getTitle());
@@ -66,6 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto saveRequest(@RequestParam Long eventId,
                                                @PathVariable Long userId) {
         log.info("saveRequest event id: {}, user id: {}", eventId, userId);

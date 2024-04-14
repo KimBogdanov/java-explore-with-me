@@ -3,6 +3,7 @@ package ru.practicum.mainmodule.event.service;
 import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.model.enums.EventState;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,4 +25,18 @@ public interface EventService {
     EventFullDto getEventForOwner(Long userId, Long eventId);
 
     EventFullDto patchEventForUser(Long userId, Long eventId, UpdateEventUserRequestDto eventUserRequestDto);
+
+    List<EventFullDto> getAllEventsForPublic(
+            String text,
+            List<Long> categories,
+            Boolean paid,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            Boolean onlyAvailable,
+            String sort,
+            Integer from,
+            Integer size,
+            HttpServletRequest request);
+
+    EventFullDto getEventForPublic(Long eventId, HttpServletRequest request);
 }

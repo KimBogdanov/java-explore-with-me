@@ -3,14 +3,12 @@ package ru.practicum.mainmodule.event.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
 import ru.practicum.mainmodule.event.model.enums.EventState;
 import ru.practicum.mainmodule.event.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
@@ -23,16 +21,30 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
     public static final String PATTERN = "yyyy-MM-dd HH:mm:ss";
-    @GetMapping("/events")
-    public List<EventFullDto> getEventsForAdmin(
-            @RequestParam(required = false) List<Long> users,
-            @RequestParam(required = false) List<EventState> states,
-            @RequestParam(required = false) List<Long> categories,
+
+    @GetMapping()
+    public List<EventFullDto> getAllEventsForPublic(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) List<@Positive Long> categories,
+            @RequestParam(required = false) Boolean paid,
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN) LocalDateTime rangeStart,
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN) LocalDateTime rangeEnd,
-            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(required = false, defaultValue = "10") @Positive Integer size){
-        log.info("getEventsForAdmin for users ids: {} states: {} categories ids: {}", users, states, categories);
-        return eventService.getAllEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+            @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size,
+            HttpServletRequest request) {
+        log.info("getEventsForAdmin with text: {} sort: {} categories ids: {} rangeStart: {} rangeEnd {}",
+                text, sort, categories, rangeEnd, rangeEnd);
+        sort = (sort == null || sort.equals("EVENT_DATE")) ? "eventDate" : "id";
+        return eventService.getAllEventsForPublic(
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request
+        );
+    }
+
+    @GetMapping("/{eventId}")
+    public EventFullDto getEventForPublic(@PathVariable Long eventId, HttpServletRequest request) {
+        log.info("getEventForPublic event id: {}", eventId);
+        return eventService.getEventForPublic(eventId, request);
     }
 }

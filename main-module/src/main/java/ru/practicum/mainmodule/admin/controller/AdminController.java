@@ -3,6 +3,7 @@ package ru.practicum.mainmodule.admin.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
 import ru.practicum.mainmodule.event.dto.UpdateEventAdminRequestDto;
@@ -32,6 +33,7 @@ public class AdminController {
     private final EventService eventService;
 
     @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
     public UserDto saveUser(@Valid @RequestBody UserShortDto userShortDto) {
         log.info("Save user name: {}, email: {}", userShortDto.getName(), userShortDto.getEmail());
         return userService.saveUser(userShortDto);
@@ -46,12 +48,14 @@ public class AdminController {
     }
 
     @DeleteMapping("/users/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long userId) {
         log.info("Delete user id: {}", userId);
         userService.deleteUser(userId);
     }
 
     @PostMapping("/categories")
+    @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto saveCategory(@Valid @RequestBody CategoryShortDto categoryShortDto) {
         log.info("Save category name: {}", categoryShortDto.getName());
         return categoryService.save(categoryShortDto);
@@ -65,6 +69,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/categories/{categoryId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long categoryId) {
         log.info("Delete category id: {}", categoryId);
         categoryService.deleteCategory(categoryId);

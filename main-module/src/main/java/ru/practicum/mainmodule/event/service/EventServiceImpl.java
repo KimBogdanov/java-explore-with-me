@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.commondto.dto.CreateStatisticDto;
 import ru.practicum.commondto.dto.ReadStatisticDto;
 import ru.practicum.mainmodule.admin.location.model.Location;
 import ru.practicum.mainmodule.admin.location.service.LocationService;
@@ -33,11 +35,9 @@ import ru.practicum.mainmodule.util.DateTimeUtil;
 import ru.practicum.mainmodule.util.PageRequestFrom;
 import ru.practicum.statisticservice.StatisticClient;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -296,12 +296,15 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getAllEventsForOwner(Long userId, Integer from, Integer size) {
         getUserOrThrowNotFoundException(userId);
         Page<Event> events = eventRepository.findAllByInitiatorId(userId, new PageRequestFrom(from, size, null));
-
+        log.info("List<Long> eventsIds = getEventsId(events)");
         List<Long> eventsIds = getEventsId(events);
+        log.info("Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds)");
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        log.info("getStatisticMap(LocalDateTime.now().minusYears(100),\n" +
+                "                LocalDateTime.now().plusYears(100), eventsIds);");
         Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
-
+        log.info("return");
         return events.stream()
                 .map(event -> eventShortMapper.toDto(event,
                         countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
@@ -323,6 +326,82 @@ public class EventServiceImpl implements EventService {
         return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
     }
 
+    @Override
+    public List<EventFullDto> getAllEventsForPublic(
+            String text,
+            List<Long> categories,
+            Boolean paid,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            Boolean onlyAvailable,
+            String sort,
+            Integer from,
+            Integer size,
+            HttpServletRequest request) {
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now();
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.now().plusYears(100);
+        }
+        log.info("Get events");
+        Page<Event> events = eventRepository.getAllEventsForPublic(
+                text,
+                categories,
+                paid,
+                rangeStart,
+                rangeEnd,
+                onlyAvailable,
+                EventState.PUBLISHED,
+                new PageRequestFrom(from, size, Sort.by(sort))
+        );
+
+        log.info("get eventsId");
+        List<Long> eventsIds = getEventsId(events);
+        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
+
+
+        statisticClient.saveHit(CreateStatisticDto.builder()
+                .app("main")
+                .ip(request.getRemoteAddr())
+                .uri(request.getRequestURI())
+                .timestamp(LocalDateTime.now()).build());
+
+
+        List<EventFullDto> collect = events.stream()
+                .map(event -> eventFullDtoMapper.toDto(
+                        event,
+                        countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
+                        statisticMap.get(event.getId())))
+                .collect(Collectors.toList());
+        if (sort.equals("id")) {
+            return collect.stream()
+                    .sorted(Comparator.comparingLong(EventFullDto::getViews))
+                    .collect(Collectors.toList());
+        }
+        return collect;
+    }
+
+    @Override
+    public EventFullDto getEventForPublic(Long eventId, HttpServletRequest request) {
+        Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
+                .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
+
+        Integer countRequest = requestRepository.countAllRequestByEventIdAndStatus(eventId,
+                RequestStatus.CONFIRMED);
+        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now().plusYears(100), List.of(eventId));
+
+        statisticClient.saveHit(CreateStatisticDto.builder()
+                .app("main")
+                .uri("/events/" + eventId)
+                .ip(request.getRemoteAddr())
+                .timestamp(LocalDateTime.now()).build());
+
+        return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
+    }
+
     private Map<Long, Long> getStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
         List<String> uris = eventsIds.stream()
                 .map(id -> "/events/" + id)
@@ -337,6 +416,7 @@ public class EventServiceImpl implements EventService {
         } else {
             throw new RuntimeException(Objects.requireNonNull(stats.getBody()).toString());
         }
+        log.info("return");
 
         return statisticDtos.stream()
                 .collect(Collectors.toMap(
