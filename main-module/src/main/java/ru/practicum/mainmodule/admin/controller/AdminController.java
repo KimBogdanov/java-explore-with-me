@@ -100,7 +100,7 @@ public class AdminController {
         return eventService.adminPatchEvent(eventId, updateEventDto);
     }
 
-    @PostMapping
+    @PostMapping("/compilations")
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto saveCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
         log.info("saveCompilation events ids: {} pinned: {} title {}",
@@ -110,14 +110,14 @@ public class AdminController {
         return compilationService.saveCompilation(newCompilationDto);
     }
 
-    @DeleteMapping("/{compId}")
+    @DeleteMapping("/compilations/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable Long compId) {
         log.info("deleteCompilation id: {}", compId);
         compilationService.deleteCompilation(compId);
     }
 
-    @PatchMapping("/{compId}")
+    @PatchMapping("/compilations/{compId}")
     public CompilationDto patchCompilation(@PathVariable Long compId,
                                            @RequestBody UpdateCompilationRequest updateCompilation) {
         log.info("patchCompilation compilation id: {}, pinned: {} title: {}",

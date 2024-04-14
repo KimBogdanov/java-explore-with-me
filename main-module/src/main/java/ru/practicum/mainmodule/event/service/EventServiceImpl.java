@@ -164,9 +164,12 @@ public class EventServiceImpl implements EventService {
         }
         if (eventUserRequestDto.getStateAction() != null) {
             if (event.getState().equals(EventState.PENDING) || event.getState().equals(EventState.CANCELED)) {
-                if (eventUserRequestDto.getStateAction().equals(StateAction.CANCEL_REVIEW) &&
-                        event.getState().equals(EventState.PENDING)) {
-                    event.setState(EventState.CANCELED);
+                switch (eventUserRequestDto.getStateAction()) {
+                    case SEND_TO_REVIEW:
+                        event.setState(EventState.PENDING);
+                        break;
+                    case CANCEL_REVIEW:
+                        event.setState(EventState.CANCELED);
                 }
             } else {
                 throw new ConditionsNotMetException(

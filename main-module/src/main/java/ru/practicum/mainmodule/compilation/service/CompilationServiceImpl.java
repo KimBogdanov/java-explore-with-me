@@ -23,6 +23,7 @@ import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.request.model.Request;
 import ru.practicum.mainmodule.request.model.enums.RequestStatus;
 import ru.practicum.mainmodule.request.repository.RequestRepository;
+import ru.practicum.mainmodule.util.PageRequestFrom;
 import ru.practicum.statisticservice.StatisticClient;
 
 import java.time.LocalDateTime;
@@ -69,9 +70,12 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public List<CompilationDto> getPublicCompilations(Boolean pinned, Integer from, Integer size) {
-
-        return null;
+    public List<Compilation> getPublicCompilations(Boolean pinned, Integer from, Integer size) {
+        Page<Compilation> compilations = compilationRepository.findAllCompilationsOptionalPinned(
+                pinned,
+                new PageRequestFrom(from, size, null)
+        );
+        return compilations.getContent();
     }
 
     @Override

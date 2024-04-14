@@ -63,7 +63,7 @@ public class UserController {
             @Valid @RequestBody UpdateEventUserRequestDto eventUserRequestDto,
             @PathVariable Long userId,
             @PathVariable Long eventId) {
-        log.info("patchEventForUser user with id: {} and event id: {}", userId, eventId);
+        log.info("patchEventForUser user with id: {} event id: {}", userId, eventId);
         return eventService.patchEventForUser(userId, eventId, eventUserRequestDto);
     }
 
