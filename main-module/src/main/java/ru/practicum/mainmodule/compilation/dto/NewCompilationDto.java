@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewCompilationDto {
-    private Set<Long> events;
+    private List<Long> events;
     @NotNull
     private Boolean pinned;
     @NotBlank

@@ -5,6 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainmodule.compilation.dto.CompilationDto;
+import ru.practicum.mainmodule.compilation.dto.NewCompilationDto;
+import ru.practicum.mainmodule.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.mainmodule.compilation.service.CompilationService;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
 import ru.practicum.mainmodule.event.dto.UpdateEventAdminRequestDto;
 import ru.practicum.mainmodule.event.model.enums.EventState;
@@ -31,6 +35,7 @@ public class AdminController {
     private final UserService userService;
     private final CategoryService categoryService;
     private final EventService eventService;
+    private final CompilationService compilationService;
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -93,5 +98,32 @@ public class AdminController {
                                         @PathVariable Long eventId) {
         log.info("adminPatchEvent id: {}", eventId);
         return eventService.adminPatchEvent(eventId, updateEventDto);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public CompilationDto saveCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
+        log.info("saveCompilation events ids: {} pinned: {} title {}",
+                newCompilationDto.getEvents(),
+                newCompilationDto.getPinned(),
+                newCompilationDto.getTitle());
+        return compilationService.saveCompilation(newCompilationDto);
+    }
+
+    @DeleteMapping("/{compId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCompilation(@PathVariable Long compId) {
+        log.info("deleteCompilation id: {}", compId);
+        compilationService.deleteCompilation(compId);
+    }
+
+    @PatchMapping("/{compId}")
+    public CompilationDto patchCompilation(@PathVariable Long compId,
+                                           @RequestBody UpdateCompilationRequest updateCompilation) {
+        log.info("patchCompilation compilation id: {}, pinned: {} title: {}",
+                compId,
+                updateCompilation.getPinned(),
+                updateCompilation.getTitle());
+        return compilationService.updateCompilation(compId, updateCompilation);
     }
 }
