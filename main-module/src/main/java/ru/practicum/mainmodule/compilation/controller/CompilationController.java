@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.compilation.dto.CompilationDto;
-import ru.practicum.mainmodule.compilation.model.Compilation;
 import ru.practicum.mainmodule.compilation.service.CompilationService;
 
 import javax.validation.constraints.Positive;
