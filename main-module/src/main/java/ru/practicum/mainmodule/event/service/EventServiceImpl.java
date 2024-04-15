@@ -196,83 +196,15 @@ public class EventServiceImpl implements EventService {
         if (rangeEnd == null) {
             rangeEnd = LocalDateTime.now().plusYears(100);
         }
-        Page<Event> events;
-        if (users == null) {
-            if (states == null) {
-                if (categories == null) {
-                    events = eventRepository.findAllByEventDateBetween(
-                            rangeStart,
-                            rangeEnd,
-                            new PageRequestFrom(from, size, null)
-                    );
-                } else {
-                    events = eventRepository.findAllByEventDateBetweenAndCategoryIdIn(
-                            rangeStart,
-                            rangeEnd,
-                            categories,
-                            new PageRequestFrom(from, size, null)
-                    );
-                }
-            } else {
-                if (categories == null) {
-                    events = eventRepository.findAllByEventDateBetweenAndStateIn(
-                            rangeStart,
-                            rangeEnd,
-                            states,
-                            new PageRequestFrom(from, size, null)
-                    );
-                } else {
-                    events = eventRepository.findAllByEventDateBetweenAndCategoryIdInAndStateIn(
-                            rangeStart,
-                            rangeEnd,
-                            categories,
-                            states,
-                            new PageRequestFrom(from, size, null)
-                    );
-                }
-            }
-        } else {
-            if (states == null) {
-                if (categories == null) {
-                    events = eventRepository.findAllByEventDateBetweenAndInitiatorIdIn(
-                            rangeStart,
-                            rangeEnd,
-                            users,
-                            new PageRequestFrom(from, size, null)
-                    );
-                } else {
-                    events = eventRepository.findAllByEventDateBetweenAndCategoryIdInAndInitiatorIdIn(
-                            rangeStart,
-                            rangeEnd,
-                            categories,
-                            users,
-                            new PageRequestFrom(from, size, null)
-                    );
-                }
+        Page<Event> events = eventRepository.getAllEventsForAdmin(
+                rangeStart,
+                rangeEnd,
+                categories,
+                states,
+                users,
+                new PageRequestFrom(from, size, null)
+        );
 
-            } else {
-                if (categories == null) {
-                    events = eventRepository.findAllByEventDateBetweenAndStateInAndInitiatorIdIn(
-                            rangeStart,
-                            rangeEnd,
-                            states,
-                            users,
-                            new PageRequestFrom(from, size, null)
-                    );
-
-                } else {
-                    events = eventRepository.findAllByEventDateBetweenAndCategoryIdInAndStateInAndInitiatorIdIn(
-                            rangeStart,
-                            rangeEnd,
-                            categories,
-                            states,
-                            users,
-                            new PageRequestFrom(from, size, null)
-                    );
-                }
-
-            }
-        }
 
         List<Long> eventsIds = getEventsId(events);
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);

@@ -13,49 +13,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    Page<Event> findAllByEventDateBetween(LocalDateTime rangeStart,
-                                          LocalDateTime rangeEnd,
-                                          Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndCategoryIdIn(LocalDateTime rangeStart,
-                                                         LocalDateTime rangeEnd,
-                                                         List<Long> categoryIds,
-                                                         Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndStateIn(LocalDateTime rangeStart,
-                                                    LocalDateTime rangeEnd,
-                                                    List<EventState> state,
-                                                    Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndCategoryIdInAndStateIn(LocalDateTime rangeStart,
-                                                                   LocalDateTime rangeEnd,
-                                                                   List<Long> categoryIds,
-                                                                   List<EventState> state,
-                                                                   Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndInitiatorIdIn(LocalDateTime rangeStart,
-                                                          LocalDateTime rangeEnd,
-                                                          List<Long> initiatorId,
-                                                          Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndCategoryIdInAndInitiatorIdIn(LocalDateTime rangeStart,
-                                                                         LocalDateTime rangeEnd,
-                                                                         List<Long> categoryIds,
-                                                                         List<Long> initiatorId,
-                                                                         Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndStateInAndInitiatorIdIn(LocalDateTime rangeStart,
-                                                                    LocalDateTime rangeEnd,
-                                                                    List<EventState> state,
-                                                                    List<Long> initiatorId,
-                                                                    Pageable pageable);
-
-    Page<Event> findAllByEventDateBetweenAndCategoryIdInAndStateInAndInitiatorIdIn(LocalDateTime rangeStart,
-                                                                                   LocalDateTime rangeEnd,
-                                                                                   List<Long> categoryIds,
-                                                                                   List<EventState> state,
-                                                                                   List<Long> initiatorId,
-                                                                                   Pageable pageable);
+    @Query("SELECT e FROM Event e " +
+            "WHERE (:categoryIds IS NULL OR e.category.id IN :categoryIds) " +
+            "AND (:states IS NULL OR e.state IN :states) " +
+            "AND (:initiatorIds IS NULL OR e.initiator.id IN :initiatorIds) " +
+            "AND (e.eventDate >= :rangeStart) " +
+            "AND (e.eventDate < :rangeEnd)")
+    Page<Event> getAllEventsForAdmin(
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            @Nullable List<Long> categoryIds,
+            @Nullable List<EventState> states,
+            @Nullable List<Long> initiatorIds,
+            Pageable pageable
+    );
 
     Page<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
