@@ -19,6 +19,7 @@ import ru.practicum.mainmodule.user.model.User;
 import ru.practicum.mainmodule.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,7 +64,7 @@ public class RequestServiceImpl implements RequestService {
 
         checkIfRequesterIsOwnerAndThrowException(userId, request.getRequester().getId(), requestsId);
 
-        request.setStatus(RequestStatus.REJECTED);
+        request.setStatus(RequestStatus.CANCELED);
         return Optional.of(request)
                 .map(requestRepository::save)
                 .map(participationRequestMapper::toDto)
@@ -217,7 +218,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Request createRequest(User user, Event event) {
         return Request.builder()
-                .created(LocalDateTime.now())
+                .created(LocalDateTime.now().withNano(0))
                 .event(event)
                 .requester(user)
                 .status((event.getRequestModeration() && event.getParticipantLimit() != 0) ?

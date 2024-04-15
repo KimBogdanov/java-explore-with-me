@@ -35,7 +35,7 @@ services:
       - POSTGRES_USER=maindb
       - POSTGRES_PASSWORD=maindb
       - DB_HOST=ewm-db
-      - DB_PORT=5542
+      - DB_PORT=5432
     depends_on:
       - ewm-db
 

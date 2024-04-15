@@ -1,5 +1,6 @@
 package ru.practicum.mainmodule.request.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.request.model.enums.RequestStatus;

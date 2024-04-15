@@ -18,7 +18,7 @@ import java.util.Map;
 public class StatisticClient extends BaseClient {
     public static final DateTimeFormatter PATTERN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public StatisticClient(@Value("http://localhost:9090") String serverUrl, RestTemplateBuilder builder) {
+    public StatisticClient(@Value("http://stats-server:9090") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
