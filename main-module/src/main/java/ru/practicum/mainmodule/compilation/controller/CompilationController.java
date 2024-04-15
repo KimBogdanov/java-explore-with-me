@@ -27,7 +27,7 @@ public class CompilationController {
     }
 
     @GetMapping
-    public List<Compilation> getPublicCompilations(
+    public List<CompilationDto> getPublicCompilations(
             @RequestParam(required = false) Boolean pinned,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {

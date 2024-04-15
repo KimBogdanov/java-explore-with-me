@@ -54,6 +54,7 @@ public class CompilationServiceImpl implements CompilationService {
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
         Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
+
         List<EventShortDto> eventDtos = events.stream()
                 .map(event -> eventShortMapper.toDto(event,
                         countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
@@ -67,12 +68,33 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public List<Compilation> getPublicCompilations(Boolean pinned, Integer from, Integer size) {
+    public List<CompilationDto> getPublicCompilations(Boolean pinned, Integer from, Integer size) {
         Page<Compilation> compilations = compilationRepository.findAllCompilationsOptionalPinned(
                 pinned,
                 new PageRequestFrom(from, size, null)
         );
-        return compilations.getContent();
+
+        List<Long> eventsIds = compilations.stream()
+                .flatMap(compilation -> compilation.getEvents().stream())
+                .map(Event::getId).distinct().collect(Collectors.toList());
+
+        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now().plusYears(100), eventsIds);
+
+        Map<Long, List<EventShortDto>> eventShortDtoMap = compilations.stream()
+                .collect(Collectors.toMap(
+                        Compilation::getId,
+                        comp -> comp.getEvents().stream()
+                                .map(event -> eventShortMapper.toDto(
+                                        event,
+                                        countRequestsByEventId.get(event.getId()),
+                                        statisticMap.get(event.getId())))
+                                .collect(Collectors.toList())
+                ));
+        return compilations.stream()
+                .map(comp -> compilationDtoMapper.toDto(comp, eventShortDtoMap.get(comp.getId())))
+                .collect(Collectors.toList());
     }
 
     @Override

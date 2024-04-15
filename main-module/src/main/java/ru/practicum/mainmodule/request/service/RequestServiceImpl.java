@@ -92,48 +92,38 @@ public class RequestServiceImpl implements RequestService {
 
         if (statusUpdateRequestDto.getStatus().equals(RequestStatus.CONFIRMED)) {
             if (event.getParticipantLimit() != 0) {
-                //Получаю число подтвержденных заявок + которые подтвержу сейчас
                 Integer countRequestsLimit = requestRepository.countAllByEventIdAndStatus(event.getId(),
                         RequestStatus.CONFIRMED) + statusUpdateRequestDto.getRequestIds().size();
-                //проверяю не превысит ли число заявок
+
                 if (countRequestsLimit > event.getParticipantLimit()) {
                     throw new ConflictException("The participant limit has been reached");
                 }
-
-                //Получаю все заявки в которых надо изменить статус, проверяю, что у них статус Pending, меняю на необходимый
-                // и сохраняю в базу
                 List<Request> requests = updateStatusRequest(statusUpdateRequestDto, eventId);
-                //Создаю возвращаемый объект
+
                 EventRequestStatusUpdateResultDto result = EventRequestStatusUpdateResultDto.builder()
                         .confirmedRequests(requests.stream()
                                 .map(participationRequestMapper::toDto)
                                 .collect(Collectors.toList())).build();
 
-                //Если число мест на мероприятии закончилось, то получаю все оставшиеся заявки в статусе ожидания и отменяю их.
                 if (countRequestsLimit.equals(event.getParticipantLimit())) {
                     List<Request> otherRequests = requestRepository.findAllByEventIdAndStatus(eventId, RequestStatus.PENDING);
                     otherRequests.forEach(request -> request.setStatus(RequestStatus.REJECTED));
                     requestRepository.saveAll(otherRequests);
-                    //дополняю возвращаемый объект
+
                     result.setRejectedRequests(otherRequests.stream()
                             .map(participationRequestMapper::toDto)
                             .collect(Collectors.toList()));
 
                 }
                 return result;
-
             } else {
-                //если лимита нет, то в возвращаемом объекте не будет записей с отмененными записями
                 List<Request> requests = updateStatusRequest(statusUpdateRequestDto, eventId);
                 return EventRequestStatusUpdateResultDto.builder()
                         .confirmedRequests(requests.stream()
                                 .map(participationRequestMapper::toDto)
                                 .collect(Collectors.toList())).build();
             }
-
         } else {
-
-            //Если отменяю, то в возвращаемом объекте не будет записей с подтвержденными
             List<Request> rejectedRequest = updateStatusRequest(statusUpdateRequestDto, eventId);
 
             return EventRequestStatusUpdateResultDto.builder()

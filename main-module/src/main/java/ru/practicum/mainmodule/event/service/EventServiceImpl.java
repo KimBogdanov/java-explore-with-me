@@ -57,11 +57,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto saveEvent(Long userId, NewEventDto newEventDto) {
         User user = getUserOrThrowNotFoundException(userId);
-
         checkTimeThrowNotCorrectTimeException(newEventDto.getEventDate(), 2);
-
         Category category = getCategoryOrThrowNotFoundException(newEventDto.getCategory());
-
         Location location = locationService.save(newEventDto.getLocation());
 
         return Optional.of(newEventDto)
