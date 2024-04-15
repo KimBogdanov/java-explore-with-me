@@ -205,7 +205,7 @@ public class EventServiceImpl implements EventService {
 
         List<Long> eventsIds = getEventsId(events);
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
+        Map<Long, Long> statisticMap = getEventStatisticMap(rangeStart, rangeEnd, eventsIds);
 
         return events.stream()
                 .map(event -> eventFullDtoMapper.toDto(
@@ -221,7 +221,7 @@ public class EventServiceImpl implements EventService {
         Page<Event> events = eventRepository.findAllByInitiatorId(userId, new PageRequestFrom(from, size, null));
         List<Long> eventsIds = getEventsId(events);
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
         return events.stream()
                 .map(event -> eventShortMapper.toDto(event,
@@ -238,7 +238,7 @@ public class EventServiceImpl implements EventService {
 
         Integer countRequest = requestRepository.countAllRequestByEventIdAndStatus(eventId,
                 RequestStatus.CONFIRMED);
-        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), List.of(eventId));
 
         return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
@@ -275,7 +275,7 @@ public class EventServiceImpl implements EventService {
 
         List<Long> eventsIds = getEventsId(events);
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
+        Map<Long, Long> statisticMap = getEventStatisticMap(rangeStart, rangeEnd, eventsIds);
 
         statisticClient.saveHit(CreateStatisticDto.builder()
                 .app("main")
@@ -304,7 +304,7 @@ public class EventServiceImpl implements EventService {
 
         Integer countRequest = requestRepository.countAllRequestByEventIdAndStatus(eventId,
                 RequestStatus.CONFIRMED);
-        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), List.of(eventId));
 
         statisticClient.saveHit(CreateStatisticDto.builder()
@@ -316,7 +316,7 @@ public class EventServiceImpl implements EventService {
         return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
     }
 
-    private Map<Long, Long> getStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
+    private Map<Long, Long> getEventStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
         List<String> uris = eventsIds.stream()
                 .map(id -> "/events/" + id)
                 .collect(Collectors.toList());
@@ -333,7 +333,8 @@ public class EventServiceImpl implements EventService {
         return statisticDtos.stream()
                 .collect(Collectors.toMap(
                         dto -> extractIdFromUri(dto.getUri()),
-                        ReadStatisticDto::getHits)
+                        ReadStatisticDto::getHits,
+                        Long::sum)
                 );
     }
 

@@ -52,7 +52,7 @@ public class CompilationServiceImpl implements CompilationService {
         List<Long> eventsIds = getEventsId(events);
 
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
 
         List<EventShortDto> eventDtos = events.stream()
@@ -79,7 +79,7 @@ public class CompilationServiceImpl implements CompilationService {
                 .map(Event::getId).distinct().collect(Collectors.toList());
 
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
 
         Map<Long, List<EventShortDto>> eventShortDtoMap = compilations.stream()
@@ -107,7 +107,7 @@ public class CompilationServiceImpl implements CompilationService {
             events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
             List<Long> eventsIds = getEventsId(events);
             Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-            Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+            Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                     LocalDateTime.now().plusYears(100), eventsIds);
             eventDtos = events.stream()
                     .map(event -> eventShortMapper.toDto(event,
@@ -155,7 +155,7 @@ public class CompilationServiceImpl implements CompilationService {
         List<Long> eventsIds = getEventsId(events);
 
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
         eventDtos = events.stream()
                 .map(event -> eventShortMapper.toDto(event,
@@ -192,7 +192,7 @@ public class CompilationServiceImpl implements CompilationService {
                 );
     }
 
-    private Map<Long, Long> getStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
+    private Map<Long, Long> getEventStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
         List<String> uris = eventsIds.stream()
                 .map(id -> "/events/" + id)
                 .collect(Collectors.toList());
@@ -209,7 +209,8 @@ public class CompilationServiceImpl implements CompilationService {
         return statisticDtos.stream()
                 .collect(Collectors.toMap(
                         dto -> extractIdFromUri(dto.getUri()),
-                        ReadStatisticDto::getHits)
+                        ReadStatisticDto::getHits,
+                        Long::sum)
                 );
     }
 
