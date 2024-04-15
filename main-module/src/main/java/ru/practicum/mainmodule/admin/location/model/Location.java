@@ -12,7 +12,6 @@ import javax.persistence.*;
 @EqualsAndHashCode(exclude = "id")
 @Setter
 @Getter
-@ToString
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

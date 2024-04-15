@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Setter
 @Getter
-@ToString
-@EqualsAndHashCode(exclude = "id")
+@EqualsAndHashCode(exclude = {"id", "event", "requester"})
 @Entity
 @Table(name = "requests")
 public class Request {

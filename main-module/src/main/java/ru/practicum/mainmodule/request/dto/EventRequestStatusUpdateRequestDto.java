@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@ToString
 public class EventRequestStatusUpdateRequestDto {
     @NotNull
     private final List<Long> requestIds;

@@ -8,8 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"id"}) //не забыть дописать
-@ToString //(exclude = {})
+@EqualsAndHashCode(exclude = {"id", "events"})
 @Builder
 @Entity
 @AllArgsConstructor

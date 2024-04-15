@@ -9,7 +9,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Setter
 @Getter
-@ToString()
 @EqualsAndHashCode(exclude = "id")
 @Entity
 @Table(name = "users")

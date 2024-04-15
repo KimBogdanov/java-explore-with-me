@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class UpdateEventUserRequestDto {
     @Size(min = 20, max = 2000)
     private String annotation;

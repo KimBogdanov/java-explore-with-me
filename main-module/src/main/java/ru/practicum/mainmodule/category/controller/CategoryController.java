@@ -24,8 +24,9 @@ public class CategoryController {
     }
 
     @GetMapping()
-    public List<CategoryDto> getAllCategories(@RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                              @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+    public List<CategoryDto> getAllCategories(
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         log.info("Get all categories from: {}, size {}", from, size);
         return categoryRepository.getAllCategories(from, size);
     }

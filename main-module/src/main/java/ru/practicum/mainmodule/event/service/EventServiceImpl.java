@@ -3,7 +3,6 @@ package ru.practicum.mainmodule.event.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +38,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -199,18 +197,15 @@ public class EventServiceImpl implements EventService {
             rangeEnd = LocalDateTime.now().plusYears(100);
         }
         Page<Event> events;
-        log.info("Get events");
         if (users == null) {
             if (states == null) {
                 if (categories == null) {
-                    log.info("1");
                     events = eventRepository.findAllByEventDateBetween(
                             rangeStart,
                             rangeEnd,
                             new PageRequestFrom(from, size, null)
                     );
                 } else {
-                    log.info("2");
                     events = eventRepository.findAllByEventDateBetweenAndCategoryIdIn(
                             rangeStart,
                             rangeEnd,
@@ -220,7 +215,6 @@ public class EventServiceImpl implements EventService {
                 }
             } else {
                 if (categories == null) {
-                    log.info("3");
                     events = eventRepository.findAllByEventDateBetweenAndStateIn(
                             rangeStart,
                             rangeEnd,
@@ -228,7 +222,6 @@ public class EventServiceImpl implements EventService {
                             new PageRequestFrom(from, size, null)
                     );
                 } else {
-                    log.info("4");
                     events = eventRepository.findAllByEventDateBetweenAndCategoryIdInAndStateIn(
                             rangeStart,
                             rangeEnd,
@@ -241,7 +234,6 @@ public class EventServiceImpl implements EventService {
         } else {
             if (states == null) {
                 if (categories == null) {
-                    log.info("5");
                     events = eventRepository.findAllByEventDateBetweenAndInitiatorIdIn(
                             rangeStart,
                             rangeEnd,
@@ -249,7 +241,6 @@ public class EventServiceImpl implements EventService {
                             new PageRequestFrom(from, size, null)
                     );
                 } else {
-                    log.info("6");
                     events = eventRepository.findAllByEventDateBetweenAndCategoryIdInAndInitiatorIdIn(
                             rangeStart,
                             rangeEnd,
@@ -261,7 +252,6 @@ public class EventServiceImpl implements EventService {
 
             } else {
                 if (categories == null) {
-                    log.info("7");
                     events = eventRepository.findAllByEventDateBetweenAndStateInAndInitiatorIdIn(
                             rangeStart,
                             rangeEnd,
@@ -271,7 +261,6 @@ public class EventServiceImpl implements EventService {
                     );
 
                 } else {
-                    log.info("8");
                     events = eventRepository.findAllByEventDateBetweenAndCategoryIdInAndStateInAndInitiatorIdIn(
                             rangeStart,
                             rangeEnd,
@@ -285,14 +274,9 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        log.info("List<Long> eventsIds = getEventsId(events);");
-
         List<Long> eventsIds = getEventsId(events);
-        log.info("Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);");
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        log.info("Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);");
         Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
-        log.info("return");
 
         return events.stream()
                 .map(event -> eventFullDtoMapper.toDto(
@@ -306,15 +290,10 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getAllEventsForOwner(Long userId, Integer from, Integer size) {
         getUserOrThrowNotFoundException(userId);
         Page<Event> events = eventRepository.findAllByInitiatorId(userId, new PageRequestFrom(from, size, null));
-        log.info("List<Long> eventsIds = getEventsId(events)");
         List<Long> eventsIds = getEventsId(events);
-        log.info("Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds)");
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        log.info("getStatisticMap(LocalDateTime.now().minusYears(100),\n" +
-                "                LocalDateTime.now().plusYears(100), eventsIds);");
         Map<Long, Long> statisticMap = getStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
-        log.info("return");
         return events.stream()
                 .map(event -> eventShortMapper.toDto(event,
                         countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
@@ -354,7 +333,6 @@ public class EventServiceImpl implements EventService {
         if (rangeEnd == null) {
             rangeEnd = LocalDateTime.now().plusYears(100);
         }
-        log.info("Get events");
         Page<Event> events = eventRepository.getAllEventsForPublic(
                 text,
                 categories,
@@ -366,13 +344,9 @@ public class EventServiceImpl implements EventService {
                 new PageRequestFrom(from, size, Sort.by(sort))
         );
 
-        log.info("get eventsId");
         List<Long> eventsIds = getEventsId(events);
-        log.info("Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);");
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
-        log.info(" Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);");
         Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
-        log.info("  statisticClient.saveHit(CreateStatisticDto.builder()");
 
         statisticClient.saveHit(CreateStatisticDto.builder()
                 .app("main")
@@ -380,21 +354,17 @@ public class EventServiceImpl implements EventService {
                 .uri(request.getRequestURI())
                 .timestamp(LocalDateTime.now()).build());
 
-        log.info("  List<EventFullDto> collect = events.stream()");
         List<EventFullDto> collect = events.stream()
                 .map(event -> eventFullDtoMapper.toDto(
                         event,
                         countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
                         statisticMap.get(event.getId())))
                 .collect(Collectors.toList());
-        log.info("if (sort.equals(\"id\")) {");
         if (sort.equals("id")) {
-            log.info("   return collect.stream()");
             return collect.stream()
                     .sorted(Comparator.comparingLong(EventFullDto::getViews))
                     .collect(Collectors.toList());
         }
-        log.info("  return collect;");
         return collect;
     }
 
@@ -425,13 +395,11 @@ public class EventServiceImpl implements EventService {
         ResponseEntity<Object> stats = statisticClient.getStats(rangeStart, rangeEnd, uris, true);
         List<ReadStatisticDto> statisticDtos;
         if (stats.getStatusCode().is2xxSuccessful()) {
-            log.info("преобразуем к списку readStatisticDto");
             statisticDtos = objectMapper.convertValue(stats.getBody(), new TypeReference<>() {
             });
         } else {
             throw new RuntimeException(Objects.requireNonNull(stats.getBody()).toString());
         }
-        log.info("return");
 
         return statisticDtos.stream()
                 .collect(Collectors.toMap(
@@ -477,8 +445,6 @@ public class EventServiceImpl implements EventService {
     }
 
     private Map<Long, Integer> getCountByEventId(List<Long> eventIds) {
-
-        log.info("получаем все реквесты для нужных эвентов и считаем их кол-во группируя по event id");
         List<Request> allByEventIdInAndStatus = requestRepository.findAllByEventIdInAndStatus(eventIds,
                 RequestStatus.CONFIRMED);
 

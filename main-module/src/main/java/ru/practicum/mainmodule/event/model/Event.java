@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = {"id"}) //не забыть дописать
-@ToString //(exclude = {})
+@EqualsAndHashCode(exclude = {"id", "category", "initiator"})
 @Entity
 @Table(name = "events")
 public class Event {
