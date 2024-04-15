@@ -17,7 +17,6 @@ import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.mapper.EventShortMapper;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.model.enums.EventState;
-import ru.practicum.mainmodule.event.model.enums.StateAction;
 import ru.practicum.mainmodule.exception.ConflictException;
 import ru.practicum.mainmodule.request.model.Request;
 import ru.practicum.mainmodule.request.model.enums.RequestStatus;
@@ -119,7 +118,7 @@ public class EventServiceImpl implements EventService {
                         break;
                 }
             } else {
-                throw new ConditionsNotMetException(
+                throw new ConflictException(
                         String.format("Cannot publish the event because it's not in the right state: %s",
                                 event.getState()));
             }
@@ -133,6 +132,9 @@ public class EventServiceImpl implements EventService {
                                           UpdateEventUserRequestDto eventUserRequestDto) {
         getUserOrThrowNotFoundException(userId);
         Event event = getEventOrThrowNotFoundException(eventId);
+        if (event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConflictException("Only pending or canceled events can be changed");
+        }
 
         if (eventUserRequestDto.getAnnotation() != null) {
             event.setAnnotation(eventUserRequestDto.getAnnotation());
@@ -283,9 +285,14 @@ public class EventServiceImpl implements EventService {
             }
         }
 
+        log.info("List<Long> eventsIds = getEventsId(events);");
+
         List<Long> eventsIds = getEventsId(events);
+        log.info("Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);");
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        log.info("Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);");
         Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
+        log.info("return");
 
         return events.stream()
                 .map(event -> eventFullDtoMapper.toDto(
@@ -361,9 +368,11 @@ public class EventServiceImpl implements EventService {
 
         log.info("get eventsId");
         List<Long> eventsIds = getEventsId(events);
+        log.info("Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);");
         Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        log.info(" Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);");
         Map<Long, Long> statisticMap = getStatisticMap(rangeStart, rangeEnd, eventsIds);
-
+        log.info("  statisticClient.saveHit(CreateStatisticDto.builder()");
 
         statisticClient.saveHit(CreateStatisticDto.builder()
                 .app("main")
@@ -371,18 +380,21 @@ public class EventServiceImpl implements EventService {
                 .uri(request.getRequestURI())
                 .timestamp(LocalDateTime.now()).build());
 
-
+        log.info("  List<EventFullDto> collect = events.stream()");
         List<EventFullDto> collect = events.stream()
                 .map(event -> eventFullDtoMapper.toDto(
                         event,
                         countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
                         statisticMap.get(event.getId())))
                 .collect(Collectors.toList());
+        log.info("if (sort.equals(\"id\")) {");
         if (sort.equals("id")) {
+            log.info("   return collect.stream()");
             return collect.stream()
                     .sorted(Comparator.comparingLong(EventFullDto::getViews))
                     .collect(Collectors.toList());
         }
+        log.info("  return collect;");
         return collect;
     }
 
@@ -410,7 +422,7 @@ public class EventServiceImpl implements EventService {
                 .map(id -> "/events/" + id)
                 .collect(Collectors.toList());
 
-        ResponseEntity<Object> stats = statisticClient.getStats(rangeStart, rangeEnd, uris, false);
+        ResponseEntity<Object> stats = statisticClient.getStats(rangeStart, rangeEnd, uris, true);
         List<ReadStatisticDto> statisticDtos;
         if (stats.getStatusCode().is2xxSuccessful()) {
             log.info("преобразуем к списку readStatisticDto");
@@ -446,7 +458,7 @@ public class EventServiceImpl implements EventService {
 
     private void checkTimeThrowNotCorrectTimeException(LocalDateTime dateTime, Integer hour) {
         if (dateTime.isBefore(LocalDateTime.now().plusHours(hour))) {
-            throw new ConditionsNotMetException(
+            throw new IllegalArgumentException(
                     String.format("Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: %s",
                             DateTimeUtil.formatLocalDateTime(dateTime)));
         }

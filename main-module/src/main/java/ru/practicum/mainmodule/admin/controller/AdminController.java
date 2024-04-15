@@ -94,9 +94,9 @@ public class AdminController {
     }
 
     @PatchMapping("events/{eventId}")
-    public EventFullDto adminPatchEvent(@RequestBody UpdateEventAdminRequestDto updateEventDto,
+    public EventFullDto adminPatchEvent(@RequestBody @Valid UpdateEventAdminRequestDto updateEventDto,
                                         @PathVariable Long eventId) {
-        log.info("adminPatchEvent id: {}", eventId);
+        log.info("adminPatchEvent id: {} dto {}", eventId, updateEventDto);
         return eventService.adminPatchEvent(eventId, updateEventDto);
     }
 
@@ -119,7 +119,7 @@ public class AdminController {
 
     @PatchMapping("/compilations/{compId}")
     public CompilationDto patchCompilation(@PathVariable Long compId,
-                                           @RequestBody UpdateCompilationRequest updateCompilation) {
+                                           @Valid @RequestBody UpdateCompilationRequest updateCompilation) {
         log.info("patchCompilation compilation id: {}, pinned: {} title: {}",
                 compId,
                 updateCompilation.getPinned(),

@@ -7,7 +7,6 @@ import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.model.enums.EventState;
 import ru.practicum.mainmodule.event.repository.EventRepository;
 import ru.practicum.mainmodule.exception.ConflictException;
-import ru.practicum.mainmodule.exception.IllegalStatusException;
 import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.request.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.mainmodule.request.dto.EventRequestStatusUpdateResultDto;
@@ -93,7 +92,7 @@ public class RequestServiceImpl implements RequestService {
         статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409)
         если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить
         */
-        //проверяю, существует ли user, event. Может ли user модерировать заявки на event
+        //проверяю существует ли user, event. Может ли user модерировать заявки на event
         getUserOrThrowNotFoundException(userId);
         Event event = getEventOrThrowNotFoundException(eventId);
         checkIfUserIsEventOwnerAndThrowException(event, userId);
@@ -128,8 +127,10 @@ public class RequestServiceImpl implements RequestService {
                     result.setRejectedRequests(otherRequests.stream()
                             .map(participationRequestMapper::toDto)
                             .collect(Collectors.toList()));
-                    return result;
+
                 }
+                return result;
+
             } else {
                 //если лимита нет, то в возвращаемом объекте не будет записей с отмененными записями
                 List<Request> requests = updateStatusRequest(statusUpdateRequestDto, eventId);
@@ -139,24 +140,25 @@ public class RequestServiceImpl implements RequestService {
                                 .collect(Collectors.toList())).build();
             }
 
+        } else {
+
+            //Если отменяю, то в возвращаемом объекте не будет записей с подтвержденными
+            List<Request> rejectedRequest = updateStatusRequest(statusUpdateRequestDto, eventId);
+
+            return EventRequestStatusUpdateResultDto.builder()
+                    .rejectedRequests(rejectedRequest.stream()
+                            .map(participationRequestMapper::toDto)
+                            .collect(Collectors.toList()))
+                    .build();
         }
-
-        //Если отменяю, то в возвращаемом объекте не будет записей с подтвержденными
-        List<Request> rejectedRequest = updateStatusRequest(statusUpdateRequestDto, eventId);
-
-        return EventRequestStatusUpdateResultDto.builder()
-                .rejectedRequests(rejectedRequest.stream()
-                        .map(participationRequestMapper::toDto)
-                        .collect(Collectors.toList()))
-                .build();
     }
 
     private List<Request> updateStatusRequest(EventRequestStatusUpdateRequestDto statusUpdateRequestDto, Long eventId) {
         List<Request> requests = requestRepository.findAllByIdInAndEventId(statusUpdateRequestDto.getRequestIds(),
                 eventId);
         requests.forEach(request -> {
-            if (request.getStatus() != RequestStatus.PENDING) {
-                throw new IllegalStatusException("Request must have status PENDING");
+            if (!request.getStatus().equals(RequestStatus.PENDING)) {
+                throw new ConflictException("Request must have status PENDING");
             }
             request.setStatus(statusUpdateRequestDto.getStatus());
         });
@@ -218,7 +220,8 @@ public class RequestServiceImpl implements RequestService {
                 .created(LocalDateTime.now())
                 .event(event)
                 .requester(user)
-                .status(event.getRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED).build();
+                .status((event.getRequestModeration() && event.getParticipantLimit() != 0) ?
+                        RequestStatus.PENDING : RequestStatus.CONFIRMED).build();
     }
 
     private Event getEventOrThrowNotFoundException(Long eventId) {

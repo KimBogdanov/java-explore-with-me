@@ -34,8 +34,9 @@ public class EventController {
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size,
             HttpServletRequest request) {
-        log.info("getEventsForAdmin with text: {} sort: {} categories ids: {} rangeStart: {} rangeEnd {}",
+        log.info("getAllEventsForPublic with text: {} sort: {} categories ids: {} rangeStart: {} rangeEnd {}",
                 text, sort, categories, rangeEnd, rangeEnd);
+        checkDateAndThrowException(rangeStart, rangeEnd);
         sort = (sort == null || sort.equals("EVENT_DATE")) ? "eventDate" : "id";
         return eventService.getAllEventsForPublic(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request
@@ -46,5 +47,11 @@ public class EventController {
     public EventFullDto getEventForPublic(@PathVariable Long eventId, HttpServletRequest request) {
         log.info("getEventForPublic event id: {}", eventId);
         return eventService.getEventForPublic(eventId, request);
+    }
+
+    private void checkDateAndThrowException(LocalDateTime start, LocalDateTime end) {
+        if ((start != null && end != null) && start.isAfter(end)) {
+            throw new IllegalArgumentException("Start after end");
+        }
     }
 }

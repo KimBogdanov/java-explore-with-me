@@ -27,10 +27,7 @@ import ru.practicum.mainmodule.util.PageRequestFrom;
 import ru.practicum.statisticservice.StatisticClient;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -83,7 +80,8 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto saveCompilation(NewCompilationDto newCompilationDto) {
         List<Event> events;
         List<EventShortDto> eventDtos;
-        if (newCompilationDto != null && newCompilationDto.getEvents().size() > 0) {
+
+        if (newCompilationDto != null && newCompilationDto.getEvents() != null) {
             events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
             List<Long> eventsIds = getEventsId(events);
             Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
@@ -96,7 +94,7 @@ public class CompilationServiceImpl implements CompilationService {
                     .collect(Collectors.toList());
         } else {
             events = null;
-            eventDtos = null;
+            eventDtos = new ArrayList<>();
         }
         return Optional.of(newCompilationDto)
                 .map(compilationDto -> newCompilationDtoMapper.toModel(compilationDto, events))

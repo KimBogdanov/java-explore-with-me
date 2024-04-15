@@ -8,6 +8,7 @@ import ru.practicum.mainmodule.category.dto.CategoryDto;
 import ru.practicum.mainmodule.category.dto.CategoryShortDto;
 import ru.practicum.mainmodule.category.mapper.CategoryDtoMapper;
 import ru.practicum.mainmodule.category.mapper.CategoryShortDtoMapper;
+import ru.practicum.mainmodule.category.model.Category;
 import ru.practicum.mainmodule.category.repository.CategoryRepository;
 import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.util.PageRequestFrom;
@@ -38,10 +39,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto patchCategory(Long categoryId, CategoryShortDto categoryShortDto) {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw new NotFoundException(String.format("Category with id=%d was not found", categoryId));
+        Category category = getCategoryOrThrowEception(categoryId);
+        if (category.getName().equals(categoryShortDto.getName())) {
+            return categoryDtoMapper.toCategory(category);
         }
         return save(categoryShortDto);
+    }
+
+    private Category getCategoryOrThrowEception(Long categoryId) {
+        return categoryRepository.findById(categoryId).orElseThrow(() ->
+                new NotFoundException(String.format("Category with id=%d was not found", categoryId))
+        );
     }
 
     @Override

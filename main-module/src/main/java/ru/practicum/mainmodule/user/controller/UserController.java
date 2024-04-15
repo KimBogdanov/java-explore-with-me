@@ -48,7 +48,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto saveEvent(@RequestBody @Valid NewEventDto newEventDto,
                                   @PathVariable Long userId) {
-        log.info("saveEvent title: {}", newEventDto.getTitle());
+        log.info("saveEvent title: {} dto: {}", newEventDto.getTitle(), newEventDto);
         return eventService.saveEvent(userId, newEventDto);
     }
 
@@ -63,7 +63,7 @@ public class UserController {
             @Valid @RequestBody UpdateEventUserRequestDto eventUserRequestDto,
             @PathVariable Long userId,
             @PathVariable Long eventId) {
-        log.info("patchEventForUser user with id: {} event id: {}", userId, eventId);
+        log.info("patchEventForUser user with id: {} event id: {} dto: {}", userId, eventId, eventUserRequestDto);
         return eventService.patchEventForUser(userId, eventId, eventUserRequestDto);
     }
 
@@ -94,7 +94,7 @@ public class UserController {
             @RequestBody @Valid EventRequestStatusUpdateRequestDto statusUpdateRequestDto,
             @PathVariable Long userId,
             @PathVariable Long eventId) {
-        log.info("patchRequestStatus user with id: {} and event id: {}", userId, eventId);
+        log.info("patchRequestStatus user with id: {} and event id: {} dto: {}", userId, eventId, statusUpdateRequestDto);
         return requestService.updateStatusRequest(statusUpdateRequestDto, userId, eventId);
     }
 }
