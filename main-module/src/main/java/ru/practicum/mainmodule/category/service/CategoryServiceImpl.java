@@ -1,7 +1,6 @@
 package ru.practicum.mainmodule.category.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainmodule.category.dto.CategoryDto;
@@ -16,7 +15,6 @@ import ru.practicum.mainmodule.util.PageRequestFrom;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor

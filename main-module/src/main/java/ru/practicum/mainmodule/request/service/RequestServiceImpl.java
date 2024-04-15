@@ -19,7 +19,6 @@ import ru.practicum.mainmodule.user.model.User;
 import ru.practicum.mainmodule.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,21 +85,12 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public EventRequestStatusUpdateResultDto updateStatusRequest(
             EventRequestStatusUpdateRequestDto statusUpdateRequestDto, Long userId, Long eventId) {
-        /*Очень большой метод получился, возможно я неправильно понял ТЗ, напишу для себя что делаю.
-        Тз такое
-        если для события лимит заявок равен 0 или отключена пре-модерация заявок, то подтверждение заявок не требуется
-        нельзя подтвердить заявку, если уже достигнут лимит по заявкам на данное событие (Ожидается код ошибки 409)
-        статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409)
-        если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить
-        */
-        //проверяю существует ли user, event. Может ли user модерировать заявки на event
+
         getUserOrThrowNotFoundException(userId);
         Event event = getEventOrThrowNotFoundException(eventId);
         checkIfUserIsEventOwnerAndThrowException(event, userId);
 
-        //если подтверждаем
         if (statusUpdateRequestDto.getStatus().equals(RequestStatus.CONFIRMED)) {
-            // и есть лимит, то надо проверить кол-во подтвержденных
             if (event.getParticipantLimit() != 0) {
                 //Получаю число подтвержденных заявок + которые подтвержу сейчас
                 Integer countRequestsLimit = requestRepository.countAllByEventIdAndStatus(event.getId(),
