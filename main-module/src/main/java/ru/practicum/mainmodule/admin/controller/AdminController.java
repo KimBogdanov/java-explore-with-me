@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainmodule.admin.location.dto.LocationFullDto;
+import ru.practicum.mainmodule.admin.location.dto.NewLocationDto;
+import ru.practicum.mainmodule.admin.location.service.LocationService;
 import ru.practicum.mainmodule.compilation.dto.CompilationDto;
 import ru.practicum.mainmodule.compilation.dto.NewCompilationDto;
 import ru.practicum.mainmodule.compilation.dto.UpdateCompilationRequest;
@@ -36,6 +39,7 @@ public class AdminController {
     private final CategoryService categoryService;
     private final EventService eventService;
     private final CompilationService compilationService;
+    private final LocationService locationService;
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -125,5 +129,15 @@ public class AdminController {
                 updateCompilation.getPinned(),
                 updateCompilation.getTitle());
         return compilationService.updateCompilation(compId, updateCompilation);
+    }
+
+    @PostMapping("/locations")
+    @ResponseStatus(HttpStatus.CREATED)
+    public LocationFullDto saveLocation(@RequestBody @Valid NewLocationDto newLocationDto) {
+        log.info("saveLocations name: {} lat: {} lon: {}",
+                newLocationDto.getName(),
+                newLocationDto.getLat(),
+                newLocationDto.getLon());
+        return locationService.saveLocation(newLocationDto);
     }
 }
