@@ -1,4 +1,4 @@
-package ru.practicum.statisticservice;
+package ru.practicum.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;

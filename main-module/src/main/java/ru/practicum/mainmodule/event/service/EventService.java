@@ -2,6 +2,7 @@ package ru.practicum.mainmodule.event.service;
 
 import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.model.enums.EventState;
+import ru.practicum.mainmodule.event.model.enums.SearchEventValues;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public interface EventService {
             LocalDateTime rangeStart,
             LocalDateTime rangeEnd,
             Boolean onlyAvailable,
-            String sort,
+            SearchEventValues sort,
             Integer from,
             Integer size,
             HttpServletRequest request);
