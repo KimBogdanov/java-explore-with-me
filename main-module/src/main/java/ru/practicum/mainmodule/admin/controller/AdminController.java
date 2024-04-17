@@ -140,4 +140,13 @@ public class AdminController {
                 newLocationDto.getLon());
         return locationService.saveLocation(newLocationDto);
     }
+
+    @GetMapping("/locations")
+    public List<LocationFullDto> getLocationsForAdmin(
+            @RequestParam(required = false, defaultValue = "false") Boolean nameIsNull,
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+        log.info("getLocationsForAdmin where name is null: {} from: {} size: {}", nameIsNull, from, size);
+        return locationService.getAllLocationForAdmin(nameIsNull, from, size);
+    }
 }
