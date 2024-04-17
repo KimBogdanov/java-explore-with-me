@@ -1,4 +1,4 @@
-package ru.practicum.statisticservice;
+package ru.practicum.service;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
+import ru.practicum.mainmodule.event.model.enums.SearchEventValues;
 import ru.practicum.mainmodule.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,16 +30,19 @@ public class EventController {
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN) LocalDateTime rangeStart,
             @RequestParam(required = false) @DateTimeFormat(pattern = PATTERN) LocalDateTime rangeEnd,
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
-            @RequestParam(required = false) String sort,
+            @RequestParam(required = false, defaultValue = "UNSORTED") String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size,
             HttpServletRequest request) {
         log.info("getAllEventsForPublic with text: {} sort: {} categories ids: {} rangeStart: {} rangeEnd {}",
                 text, sort, categories, rangeEnd, rangeEnd);
         checkDateAndThrowException(rangeStart, rangeEnd);
-        sort = (sort == null || sort.equals("EVENT_DATE")) ? "eventDate" : "id";
+
+        SearchEventValues sortBy = SearchEventValues.from(sort)
+                .orElseThrow(() -> new IllegalArgumentException("Unknown sort: " + sort));
+
         return eventService.getAllEventsForPublic(
-                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sortBy, from, size, request
         );
     }
 

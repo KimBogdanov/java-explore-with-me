@@ -20,11 +20,9 @@ import ru.practicum.mainmodule.event.mapper.EventShortMapper;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.repository.EventRepository;
 import ru.practicum.mainmodule.exception.NotFoundException;
-import ru.practicum.mainmodule.request.model.Request;
-import ru.practicum.mainmodule.request.model.enums.RequestStatus;
-import ru.practicum.mainmodule.request.repository.RequestRepository;
+import ru.practicum.mainmodule.request.service.RequestService;
 import ru.practicum.mainmodule.util.PageRequestFrom;
-import ru.practicum.statisticservice.StatisticClient;
+import ru.practicum.service.StatisticClient;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,8 +35,8 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private final RequestRepository requestRepository;
     private final StatisticClient statisticClient;
+    private final RequestService requestService;
     private final NewCompilationDtoMapper newCompilationDtoMapper;
     private final EventShortMapper eventShortMapper;
     private final CompilationDtoMapper compilationDtoMapper;
@@ -51,7 +49,7 @@ public class CompilationServiceImpl implements CompilationService {
         List<Event> events = compilation.getEvents();
         List<Long> eventsIds = getEventsId(events);
 
-        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Integer> countRequestsByEventId = requestService.countConfirmedRequestByEventId(eventsIds);
         Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
 
@@ -78,7 +76,7 @@ public class CompilationServiceImpl implements CompilationService {
                 .flatMap(compilation -> compilation.getEvents().stream())
                 .map(Event::getId).distinct().collect(Collectors.toList());
 
-        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Integer> countRequestsByEventId = requestService.countConfirmedRequestByEventId(eventsIds);
         Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
 
@@ -106,7 +104,7 @@ public class CompilationServiceImpl implements CompilationService {
         if (newCompilationDto != null && newCompilationDto.getEvents() != null) {
             events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
             List<Long> eventsIds = getEventsId(events);
-            Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+            Map<Long, Integer> countRequestsByEventId = requestService.countConfirmedRequestByEventId(eventsIds);
             Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                     LocalDateTime.now().plusYears(100), eventsIds);
             eventDtos = events.stream()
@@ -118,7 +116,7 @@ public class CompilationServiceImpl implements CompilationService {
             events = null;
             eventDtos = new ArrayList<>();
         }
-        return Optional.of(newCompilationDto)
+        return Optional.ofNullable(newCompilationDto)
                 .map(compilationDto -> newCompilationDtoMapper.toModel(compilationDto, events))
                 .map(compilationRepository::save)
                 .map(compilation -> compilationDtoMapper.toDto(compilation, eventDtos))
@@ -154,7 +152,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         List<Long> eventsIds = getEventsId(events);
 
-        Map<Long, Integer> countRequestsByEventId = getCountByEventId(eventsIds);
+        Map<Long, Integer> countRequestsByEventId = requestService.countConfirmedRequestByEventId(eventsIds);
         Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
                 LocalDateTime.now().plusYears(100), eventsIds);
         eventDtos = events.stream()
@@ -179,17 +177,6 @@ public class CompilationServiceImpl implements CompilationService {
         return events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-    }
-
-    private Map<Long, Integer> getCountByEventId(List<Long> eventIds) {
-        List<Request> allByEventIdInAndStatus = requestRepository.findAllByEventIdInAndStatus(eventIds,
-                RequestStatus.CONFIRMED);
-
-        return allByEventIdInAndStatus.stream()
-                .collect(Collectors.groupingBy(
-                        request -> request.getEvent().getId(),
-                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue))
-                );
     }
 
     private Map<Long, Long> getEventStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {

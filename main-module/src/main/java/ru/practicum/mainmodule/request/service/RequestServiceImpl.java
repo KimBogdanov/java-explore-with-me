@@ -20,6 +20,7 @@ import ru.practicum.mainmodule.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -132,6 +133,18 @@ public class RequestServiceImpl implements RequestService {
                             .collect(Collectors.toList()))
                     .build();
         }
+    }
+
+    @Override
+    public Map<Long, Integer> countConfirmedRequestByEventId(List<Long> eventIds) {
+        List<Request> eventsByIdInAndStatus = requestRepository.findAllByEventIdInAndStatus(eventIds,
+                RequestStatus.CONFIRMED);
+
+        return eventsByIdInAndStatus.stream()
+                .collect(Collectors.groupingBy(
+                        request -> request.getEvent().getId(),
+                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue))
+                );
     }
 
     private List<Request> updateStatusRequest(EventRequestStatusUpdateRequestDto statusUpdateRequestDto, Long eventId) {
