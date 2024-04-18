@@ -16,7 +16,5 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
             "WHERE (:nameIsNull = false OR l.name IS NULL)")
     Page<Location> getLocationForAdmin(
             Boolean nameIsNull,
-            Integer from,
-            Integer size,
             PageRequestFrom pageRequestFrom);
 }

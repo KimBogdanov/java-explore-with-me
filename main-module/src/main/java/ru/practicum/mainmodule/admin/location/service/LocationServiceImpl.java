@@ -51,8 +51,6 @@ public class LocationServiceImpl implements LocationService {
     public List<LocationFullDto> getAllLocationForAdmin(Boolean nameIsNull, Integer from, Integer size) {
         return locationRepository.getLocationForAdmin(
                         nameIsNull,
-                        from,
-                        size,
                         new PageRequestFrom(from, size, null)).stream()
                 .map(locationFullDtoMapper::toDto)
                 .collect(Collectors.toList());
