@@ -144,12 +144,18 @@ public class AdminController {
     }
 
     @GetMapping("/locations")
-    public List<LocationFullDto> getLocationsForAdmin(
+    public List<LocationFullDto> getAllLocationsForAdmin(
             @RequestParam(required = false, defaultValue = "false") Boolean nameIsNull,
             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         log.info("getLocationsForAdmin where name is null: {} from: {} size: {}", nameIsNull, from, size);
         return locationService.getAllLocationForAdmin(nameIsNull, from, size);
+    }
+
+    @GetMapping("/locations/{locationId}")
+    public LocationFullDto getLocationById(@PathVariable Long locationId) {
+        log.info("getLocationById location id: {}", locationId);
+        return locationService.getLocationById(locationId);
     }
 
     @PatchMapping("/locations/{locationId}")
@@ -171,5 +177,4 @@ public class AdminController {
         log.info("getLocationsByCoordinatesAndRadius where lat: {} lon: {} radius: {}", lat, lon, radius);
         return locationService.getLocationsByCoordinatesAndRadius(lat, lon, radius, from, size);
     }
-
 }

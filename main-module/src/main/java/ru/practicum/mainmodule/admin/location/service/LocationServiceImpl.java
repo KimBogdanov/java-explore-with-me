@@ -49,6 +49,12 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    public LocationFullDto getLocationById(Long locationId) {
+        Location location = getLocationOrThrowNotFoundException(locationId);
+        return locationFullDtoMapper.toDto(location);
+    }
+
+    @Override
     public List<LocationFullDto> getAllLocationForAdmin(Boolean nameIsNull, Integer from, Integer size) {
         return locationRepository.getLocationForAdmin(
                         nameIsNull,

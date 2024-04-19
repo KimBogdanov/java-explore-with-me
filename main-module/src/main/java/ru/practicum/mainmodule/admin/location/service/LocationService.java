@@ -19,4 +19,6 @@ public interface LocationService {
 
     List<LocationFullDto> getLocationsByCoordinatesAndRadius(
             Double lat, Double lon, float radius, Integer from, Integer size);
+
+    LocationFullDto getLocationById(Long locationId);
 }
