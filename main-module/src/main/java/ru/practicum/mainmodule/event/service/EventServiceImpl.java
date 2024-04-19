@@ -319,6 +319,32 @@ public class EventServiceImpl implements EventService {
         return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
     }
 
+    @Override
+    public List<EventShortDto> getEventsByCoordinatesAndRadius(
+            Double lat,
+            Double lon,
+            float radius,
+            Integer from,
+            Integer size) {
+
+        Page<Event> events = eventRepository.getEventsByCoordinates(
+                lat,
+                lon,
+                radius,
+                EventState.PUBLISHED,
+                new PageRequestFrom(from, size, null));
+
+        List<Long> eventsIds = getEventsId(events);
+        Map<Long, Integer> countRequestsByEventId = requestService.countConfirmedRequestByEventId(eventsIds);
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now().plusYears(100), eventsIds);
+        return events.stream()
+                .map(event -> eventShortMapper.toDto(event,
+                        countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
+                        statisticMap.get(event.getId())))
+                .collect(Collectors.toList());
+    }
+
     private Map<Long, Long> getEventStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {
         List<String> uris = eventsIds.stream()
                 .map(id -> "/events/" + id)

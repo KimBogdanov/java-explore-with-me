@@ -3,6 +3,7 @@ package ru.practicum.mainmodule.admin.location.service;
 import ru.practicum.mainmodule.admin.location.dto.LocationDto;
 import ru.practicum.mainmodule.admin.location.dto.LocationFullDto;
 import ru.practicum.mainmodule.admin.location.dto.NewLocationDto;
+import ru.practicum.mainmodule.admin.location.dto.UpdateLocationDto;
 import ru.practicum.mainmodule.admin.location.model.Location;
 
 import java.util.List;
@@ -13,4 +14,9 @@ public interface LocationService {
     LocationFullDto saveLocation(NewLocationDto newLocationDto);
 
     List<LocationFullDto> getAllLocationForAdmin(Boolean nameIsNull, Integer from, Integer size);
+
+    LocationFullDto updateLocation(Long locationId, UpdateLocationDto updateLocationDto);
+
+    List<LocationFullDto> getLocationsByCoordinatesAndRadius(
+            Double lat, Double lon, float radius, Integer from, Integer size);
 }

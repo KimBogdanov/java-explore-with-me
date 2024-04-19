@@ -1,18 +1,18 @@
 package ru.practicum.mainmodule.admin.location.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainmodule.admin.location.dto.LocationDto;
 import ru.practicum.mainmodule.admin.location.dto.LocationFullDto;
 import ru.practicum.mainmodule.admin.location.dto.NewLocationDto;
+import ru.practicum.mainmodule.admin.location.dto.UpdateLocationDto;
 import ru.practicum.mainmodule.admin.location.mapper.LocationDtoMapper;
 import ru.practicum.mainmodule.admin.location.mapper.LocationFullDtoMapper;
 import ru.practicum.mainmodule.admin.location.mapper.NewLocationDtoMapper;
 import ru.practicum.mainmodule.admin.location.model.Location;
 import ru.practicum.mainmodule.admin.location.repository.LocationRepository;
+import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.util.PageRequestFrom;
 
 import java.util.List;
@@ -39,6 +39,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
+    @Transactional
     public LocationFullDto saveLocation(NewLocationDto newLocationDto) {
         return Optional.of(newLocationDto)
                 .map(newLocationDtoMapper::toModel)
@@ -54,5 +55,32 @@ public class LocationServiceImpl implements LocationService {
                         new PageRequestFrom(from, size, null)).stream()
                 .map(locationFullDtoMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public LocationFullDto updateLocation(Long locationId, UpdateLocationDto updateLocationDto) {
+        Location location = getLocationOrThrowNotFoundException(locationId);
+        if (updateLocationDto.getName() != null) {
+            location.setName(updateLocationDto.getName());
+        }
+        if (updateLocationDto.getDescription() != null) {
+            location.setDescription(updateLocationDto.getDescription());
+        }
+        return locationFullDtoMapper.toDto(location);
+    }
+
+    @Override
+    public List<LocationFullDto> getLocationsByCoordinatesAndRadius(
+            Double lat, Double lon, float radius, Integer from, Integer size) {
+        return locationRepository.findLocationsInRadius(lat, lon, radius, new PageRequestFrom(from, size, null))
+                .stream()
+                .map(locationFullDtoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private Location getLocationOrThrowNotFoundException(Long locationId) {
+        return locationRepository.findById(locationId)
+                .orElseThrow(() -> new NotFoundException(String.format("Location with id=%d was not found", locationId)));
     }
 }

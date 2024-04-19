@@ -97,4 +97,15 @@ public class UserController {
         log.info("patchRequestStatus user with id: {} and event id: {}", userId, eventId);
         return requestService.updateStatusRequest(statusUpdateRequestDto, userId, eventId);
     }
+
+    @GetMapping("/events/radius")
+    public List<EventShortDto> getAllEventsByCoordinates(
+            @RequestParam() Double lat,
+            @RequestParam() Double lon,
+            @RequestParam(required = false, defaultValue = "10") float radius,
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+        log.info("getAllEventsByCoordinates where lat: {} lon: {} radius: {}", lat, lon, radius);
+        return eventService.getEventsByCoordinatesAndRadius(lat, lon, radius, from, size);
+    }
 }
