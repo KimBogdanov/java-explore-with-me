@@ -4,11 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import ru.practicum.mainmodule.admin.location.dto.LocationFullDto;
 import ru.practicum.mainmodule.admin.location.model.Location;
 import ru.practicum.mainmodule.util.PageRequestFrom;
-
-import java.util.List;
 
 public interface LocationRepository extends JpaRepository<Location, Long> {
     Location findLocationByLatAndLon(Double lat, Double lon);
