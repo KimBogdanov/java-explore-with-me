@@ -1,17 +1,17 @@
-package ru.practicum.mainmodule.admin.location.service;
+package ru.practicum.mainmodule.location.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.mainmodule.admin.location.dto.LocationDto;
-import ru.practicum.mainmodule.admin.location.dto.LocationFullDto;
-import ru.practicum.mainmodule.admin.location.dto.NewLocationDto;
-import ru.practicum.mainmodule.admin.location.dto.UpdateLocationDto;
-import ru.practicum.mainmodule.admin.location.mapper.LocationDtoMapper;
-import ru.practicum.mainmodule.admin.location.mapper.LocationFullDtoMapper;
-import ru.practicum.mainmodule.admin.location.mapper.NewLocationDtoMapper;
-import ru.practicum.mainmodule.admin.location.model.Location;
-import ru.practicum.mainmodule.admin.location.repository.LocationRepository;
+import ru.practicum.mainmodule.location.dto.LocationDto;
+import ru.practicum.mainmodule.location.dto.LocationFullDto;
+import ru.practicum.mainmodule.location.dto.NewLocationDto;
+import ru.practicum.mainmodule.location.dto.UpdateLocationDto;
+import ru.practicum.mainmodule.location.mapper.LocationDtoMapper;
+import ru.practicum.mainmodule.location.mapper.LocationFullDtoMapper;
+import ru.practicum.mainmodule.location.mapper.NewLocationDtoMapper;
+import ru.practicum.mainmodule.location.model.Location;
+import ru.practicum.mainmodule.location.repository.LocationRepository;
 import ru.practicum.mainmodule.exception.NotFoundException;
 import ru.practicum.mainmodule.util.PageRequestFrom;
 
@@ -55,10 +55,8 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public List<LocationFullDto> getAllLocationForAdmin(Boolean nameIsNull, Integer from, Integer size) {
-        return locationRepository.getLocationForAdmin(
-                        nameIsNull,
-                        new PageRequestFrom(from, size, null)).stream()
+    public List<LocationFullDto> getAllLocationForAdmin(Integer from, Integer size) {
+        return locationRepository.findAll(new PageRequestFrom(from, size, null)).stream()
                 .map(locationFullDtoMapper::toDto)
                 .collect(Collectors.toList());
     }

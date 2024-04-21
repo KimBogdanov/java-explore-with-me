@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.mainmodule.admin.location.dto.LocationFullDto;
-import ru.practicum.mainmodule.admin.location.dto.NewLocationDto;
-import ru.practicum.mainmodule.admin.location.dto.UpdateLocationDto;
-import ru.practicum.mainmodule.admin.location.service.LocationService;
+import ru.practicum.mainmodule.location.dto.LocationFullDto;
+import ru.practicum.mainmodule.location.dto.NewLocationDto;
+import ru.practicum.mainmodule.location.dto.UpdateLocationDto;
+import ru.practicum.mainmodule.location.service.LocationService;
 import ru.practicum.mainmodule.category.dto.CategoryUpdateDto;
 import ru.practicum.mainmodule.compilation.dto.CompilationDto;
 import ru.practicum.mainmodule.compilation.dto.NewCompilationDto;
@@ -145,11 +145,10 @@ public class AdminController {
 
     @GetMapping("/locations")
     public List<LocationFullDto> getAllLocationsForAdmin(
-            @RequestParam(required = false, defaultValue = "false") Boolean nameIsNull,
             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        log.info("getLocationsForAdmin where name is null: {} from: {} size: {}", nameIsNull, from, size);
-        return locationService.getAllLocationForAdmin(nameIsNull, from, size);
+        log.info("getLocationsForAdmin from: {} size: {}", from, size);
+        return locationService.getAllLocationForAdmin(from, size);
     }
 
     @GetMapping("/locations/{locationId}")

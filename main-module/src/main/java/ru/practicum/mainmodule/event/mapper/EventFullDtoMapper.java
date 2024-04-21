@@ -1,7 +1,7 @@
 package ru.practicum.mainmodule.event.mapper;
 
 import org.mapstruct.Mapper;
-import ru.practicum.mainmodule.admin.location.mapper.LocationDtoMapper;
+import ru.practicum.mainmodule.location.mapper.LocationDtoMapper;
 import ru.practicum.mainmodule.category.mapper.CategoryDtoMapper;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
 import ru.practicum.mainmodule.event.model.Event;

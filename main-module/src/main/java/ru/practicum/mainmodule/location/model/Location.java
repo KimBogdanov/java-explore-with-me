@@ -1,4 +1,4 @@
-package ru.practicum.mainmodule.admin.location.model;
+package ru.practicum.mainmodule.location.model;
 
 import lombok.*;
 
