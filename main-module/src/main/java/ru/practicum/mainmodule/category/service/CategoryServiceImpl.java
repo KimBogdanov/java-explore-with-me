@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainmodule.category.dto.CategoryDto;
 import ru.practicum.mainmodule.category.dto.CategoryShortDto;
+import ru.practicum.mainmodule.category.dto.CategoryUpdateDto;
 import ru.practicum.mainmodule.category.mapper.CategoryDtoMapper;
 import ru.practicum.mainmodule.category.mapper.CategoryShortDtoMapper;
 import ru.practicum.mainmodule.category.model.Category;
@@ -26,7 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDto save(CategoryShortDto categoryShortDto) {
+    public CategoryDto saveCategory(CategoryShortDto categoryShortDto) {
         return Optional.of(categoryShortDto)
                 .map(categoryShortDtoMapper::toCategory)
                 .map(categoryRepository::save)
@@ -36,15 +37,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryDto patchCategory(Long categoryId, CategoryShortDto categoryShortDto) {
-        Category category = getCategoryOrThrowEception(categoryId);
-        if (category.getName().equals(categoryShortDto.getName())) {
-            return categoryDtoMapper.toCategory(category);
+    public CategoryDto patchCategory(Long categoryId, CategoryUpdateDto categoryUpdateDto) {
+        Category category = getCategoryOrThrowException(categoryId);
+        if (categoryUpdateDto.getName() != null) {
+            category.setName(categoryUpdateDto.getName());
         }
-        return save(categoryShortDto);
+        return categoryDtoMapper.toCategory(category);
     }
 
-    private Category getCategoryOrThrowEception(Long categoryId) {
+    private Category getCategoryOrThrowException(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(() ->
                 new NotFoundException(String.format("Category with id=%d was not found", categoryId))
         );

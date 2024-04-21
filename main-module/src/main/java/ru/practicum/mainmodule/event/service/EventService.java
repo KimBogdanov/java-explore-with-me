@@ -40,4 +40,6 @@ public interface EventService {
             HttpServletRequest request);
 
     EventFullDto getEventForPublic(Long eventId, HttpServletRequest request);
+
+    List<EventShortDto> getAllEventsByLocation(Long locationId, Integer from, Integer size);
 }

@@ -161,7 +161,6 @@ public class CompilationServiceImpl implements CompilationService {
                         statisticMap.get(event.getId())))
                 .collect(Collectors.toList());
 
-
         return Optional.of(compilation)
                 .map(compilationRepository::save)
                 .map(comp -> compilationDtoMapper.toDto(comp, eventDtos))

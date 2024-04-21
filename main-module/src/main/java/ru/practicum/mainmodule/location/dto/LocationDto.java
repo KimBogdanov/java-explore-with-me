@@ -1,4 +1,4 @@
-package ru.practicum.mainmodule.admin.location.dto;
+package ru.practicum.mainmodule.location.dto;
 
 import lombok.*;
 

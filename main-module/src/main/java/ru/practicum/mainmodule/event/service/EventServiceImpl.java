@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.commondto.dto.CreateStatisticDto;
 import ru.practicum.commondto.dto.ReadStatisticDto;
-import ru.practicum.mainmodule.admin.location.model.Location;
-import ru.practicum.mainmodule.admin.location.service.LocationService;
+import ru.practicum.mainmodule.location.model.Location;
+import ru.practicum.mainmodule.location.repository.LocationRepository;
+import ru.practicum.mainmodule.location.service.LocationService;
 import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.mapper.EventShortMapper;
 import ru.practicum.mainmodule.event.model.Event;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
     private final LocationService locationService;
     private final RequestService requestService;
     private final EventRepository eventRepository;
@@ -317,6 +319,30 @@ public class EventServiceImpl implements EventService {
                 .timestamp(LocalDateTime.now()).build());
 
         return eventFullDtoMapper.toDto(event, countRequest, statisticMap.get(eventId));
+    }
+
+    @Override
+    public List<EventShortDto> getAllEventsByLocation(Long locationId, Integer from, Integer size) {
+        getLocationOrThrowNotFoundException(locationId);
+        Page<Event> events = eventRepository.findByLocationIdAndState(
+                locationId,
+                EventState.PUBLISHED,
+                new PageRequestFrom(from, size, null));
+
+        List<Long> eventsIds = getEventsId(events);
+        Map<Long, Integer> countRequestsByEventId = requestService.countConfirmedRequestByEventId(eventsIds);
+        Map<Long, Long> statisticMap = getEventStatisticMap(LocalDateTime.now().minusYears(100),
+                LocalDateTime.now().plusYears(100), eventsIds);
+        return events.stream()
+                .map(event -> eventShortMapper.toDto(event,
+                        countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
+                        statisticMap.get(event.getId())))
+                .collect(Collectors.toList());
+    }
+
+    private Location getLocationOrThrowNotFoundException(Long locationId) {
+        return locationRepository.findById(locationId)
+                .orElseThrow(() -> new NotFoundException(String.format("Location with id=%d was not found", locationId)));
     }
 
     private Map<Long, Long> getEventStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {

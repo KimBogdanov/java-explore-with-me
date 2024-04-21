@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    @Query("SELECT e FROM Event e " +
+    @Query(value = "SELECT e FROM Event e " +
             "WHERE (:categoryIds IS NULL OR e.category.id IN :categoryIds) " +
             "AND (:states IS NULL OR e.state IN :states) " +
             "AND (:initiatorIds IS NULL OR e.initiator.id IN :initiatorIds) " +
@@ -30,7 +30,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Page<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
-    @Query("SELECT e " +
+    @Query(value = "SELECT e " +
             "FROM Event e " +
             "WHERE (:text IS NULL OR lower(e.annotation) LIKE concat('%', lower(:text), '%') OR lower(e.description) LIKE concat('%', lower(:text), '%')) " +
             "AND (:categories IS NULL OR e.category.id IN :categories) " +
@@ -54,4 +54,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByIdIn(List<Long> eventIds);
 
     Optional<Event> findByIdAndState(Long eventId, EventState state);
+
+    Page<Event> findByLocationIdAndState(Long locationId, EventState state, Pageable pageable);
 }

@@ -58,6 +58,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestsId) {
         getUserOrThrowNotFoundException(userId);
         Request request = getRequestOrThrowNotFoundException(requestsId);
@@ -65,10 +66,7 @@ public class RequestServiceImpl implements RequestService {
         checkIfRequesterIsOwnerAndThrowException(userId, request.getRequester().getId(), requestsId);
 
         request.setStatus(RequestStatus.CANCELED);
-        return Optional.of(request)
-                .map(requestRepository::save)
-                .map(participationRequestMapper::toDto)
-                .get();
+        return participationRequestMapper.toDto(request);
     }
 
     @Override

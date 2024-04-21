@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainmodule.event.dto.EventFullDto;
+import ru.practicum.mainmodule.event.dto.EventShortDto;
 import ru.practicum.mainmodule.event.model.enums.SearchEventValues;
 import ru.practicum.mainmodule.event.service.EventService;
 
@@ -50,6 +51,15 @@ public class EventController {
     public EventFullDto getEventForPublic(@PathVariable Long eventId, HttpServletRequest request) {
         log.info("getEventForPublic event id: {}", eventId);
         return eventService.getEventForPublic(eventId, request);
+    }
+
+    @GetMapping("/locations/{locationId}")
+    public List<EventShortDto> getAllEventsByLocation(
+            @PathVariable Long locationId,
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+        log.info("getAllEventsByLocation location id {}", locationId);
+        return eventService.getAllEventsByLocation(locationId, from, size);
     }
 
     private void checkDateAndThrowException(LocalDateTime start, LocalDateTime end) {

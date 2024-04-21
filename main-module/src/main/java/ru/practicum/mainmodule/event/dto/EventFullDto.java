@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ru.practicum.mainmodule.admin.location.dto.LocationDto;
+import ru.practicum.mainmodule.location.dto.LocationDto;
 import ru.practicum.mainmodule.category.dto.CategoryDto;
 import ru.practicum.mainmodule.event.model.enums.EventState;
 import ru.practicum.mainmodule.user.dto.UserShortDto;
