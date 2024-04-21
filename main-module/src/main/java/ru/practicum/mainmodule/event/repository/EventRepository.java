@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.Nullable;
 import ru.practicum.mainmodule.event.model.Event;
 import ru.practicum.mainmodule.event.model.enums.EventState;
-import ru.practicum.mainmodule.util.PageRequestFrom;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,7 +55,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByIdAndState(Long eventId, EventState state);
 
-    @Query(value = "SELECT e FROM Event e WHERE distance(:lat, :lon, e.location.lat, e.location.lon) <= :radius " +
-            "AND e.state = :state")
-    Page<Event> getEventsByCoordinates(Double lat, Double lon, float radius, EventState state, PageRequestFrom pageRequestFrom);
+    Page<Event> findByLocationIdAndState(Long locationId, EventState state, Pageable pageable);
 }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.commondto.dto.CreateStatisticDto;
 import ru.practicum.commondto.dto.ReadStatisticDto;
 import ru.practicum.mainmodule.location.model.Location;
+import ru.practicum.mainmodule.location.repository.LocationRepository;
 import ru.practicum.mainmodule.location.service.LocationService;
 import ru.practicum.mainmodule.event.dto.*;
 import ru.practicum.mainmodule.event.mapper.EventShortMapper;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
     private final LocationService locationService;
     private final RequestService requestService;
     private final EventRepository eventRepository;
@@ -320,17 +322,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getEventsByCoordinatesAndRadius(
-            Double lat,
-            Double lon,
-            float radius,
-            Integer from,
-            Integer size) {
-
-        Page<Event> events = eventRepository.getEventsByCoordinates(
-                lat,
-                lon,
-                radius,
+    public List<EventShortDto> getAllEventsByLocation(Long locationId, Integer from, Integer size) {
+        getLocationOrThrowNotFoundException(locationId);
+        Page<Event> events = eventRepository.findByLocationIdAndState(
+                locationId,
                 EventState.PUBLISHED,
                 new PageRequestFrom(from, size, null));
 
@@ -343,6 +338,11 @@ public class EventServiceImpl implements EventService {
                         countRequestsByEventId.get(event.getId()) == null ? 0 : countRequestsByEventId.get(event.getId()),
                         statisticMap.get(event.getId())))
                 .collect(Collectors.toList());
+    }
+
+    private Location getLocationOrThrowNotFoundException(Long locationId) {
+        return locationRepository.findById(locationId)
+                .orElseThrow(() -> new NotFoundException(String.format("Location with id=%d was not found", locationId)));
     }
 
     private Map<Long, Long> getEventStatisticMap(LocalDateTime rangeStart, LocalDateTime rangeEnd, List<Long> eventsIds) {

@@ -498,28 +498,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/users/events/radius?lat=0&lon=0&radius=100",
+					"raw": "{{baseUrl}}/events/locations/{{locationId}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
-						"users",
 						"events",
-						"radius"
-					],
-					"query": [
-						{
-							"key": "lat",
-							"value": "0"
-						},
-						{
-							"key": "lon",
-							"value": "0"
-						},
-						{
-							"key": "radius",
-							"value": "100"
-						}
+						"locations",
+						"{{locationId}}"
 					]
 				}
 			},

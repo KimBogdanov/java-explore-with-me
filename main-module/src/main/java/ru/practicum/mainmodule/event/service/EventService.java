@@ -41,5 +41,5 @@ public interface EventService {
 
     EventFullDto getEventForPublic(Long eventId, HttpServletRequest request);
 
-    List<EventShortDto> getEventsByCoordinatesAndRadius(Double lat, Double lon, float radius, Integer from, Integer size);
+    List<EventShortDto> getAllEventsByLocation(Long locationId, Integer from, Integer size);
 }
