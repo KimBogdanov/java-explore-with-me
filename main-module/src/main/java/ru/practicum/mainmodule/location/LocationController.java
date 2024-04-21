@@ -20,7 +20,7 @@ import java.util.List;
 public class LocationController {
     private final LocationService locationService;
 
-    @GetMapping("/locations")
+    @GetMapping()
     public List<LocationFullDto> getAllLocations(
             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
