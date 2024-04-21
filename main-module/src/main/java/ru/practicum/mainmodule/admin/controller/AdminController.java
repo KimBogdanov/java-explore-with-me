@@ -143,14 +143,6 @@ public class AdminController {
         return locationService.saveLocation(newLocationDto);
     }
 
-    @GetMapping("/locations")
-    public List<LocationFullDto> getAllLocationsForAdmin(
-            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        log.info("getLocationsForAdmin from: {} size: {}", from, size);
-        return locationService.getAllLocationForAdmin(from, size);
-    }
-
     @GetMapping("/locations/{locationId}")
     public LocationFullDto getLocationById(@PathVariable Long locationId) {
         log.info("getLocationById location id: {}", locationId);
